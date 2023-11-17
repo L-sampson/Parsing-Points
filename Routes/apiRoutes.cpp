@@ -28,8 +28,8 @@ void getSports(char buff[])
     CURLcode res;
     curl_easy_setopt(sports, CURLOPT_CUSTOMREQUEST, "GET");
     curl_easy_setopt(sports, CURLOPT_URL, buff);
-    curl_easy_setopt(sports, CURLOPT_WRITEFUNCTION, WriteCallback);
-    curl_easy_setopt(sports, CURLOPT_WRITEDATA, &readSports);
+    //curl_easy_setopt(sports, CURLOPT_WRITEFUNCTION, WriteCallback);
+    //curl_easy_setopt(sports, CURLOPT_WRITEDATA, &readSports);
 
     res = curl_easy_perform(sports);
     if (res != CURLE_OK)

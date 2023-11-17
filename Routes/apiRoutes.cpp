@@ -12,26 +12,24 @@ using namespace nlohmann;
 void parse(string &readBuff){
     auto p = json::parse(readBuff);
     json pdata = p;
-    cout<<pdata[0];
+    cout<<pdata[0]["bookmakers"][0];
 }
-
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
     ((string *)userp)->append((char *)contents, size * nmemb);
     return size * nmemb;
 }
 
-// GET methods:
+// GET sports methods
 void getSports(char buff[])
 {
-    string readBuff;
+    string readSports;
     CURL *sports = curl_easy_init();
     CURLcode res;
     curl_easy_setopt(sports, CURLOPT_CUSTOMREQUEST, "GET");
     curl_easy_setopt(sports, CURLOPT_URL, buff);
-    curl_easy_setopt(sports, CURLOPT_FOLLOWLOCATION, 1L);
     curl_easy_setopt(sports, CURLOPT_WRITEFUNCTION, WriteCallback);
-    curl_easy_setopt(sports, CURLOPT_WRITEDATA, &readBuff);
+    curl_easy_setopt(sports, CURLOPT_WRITEDATA, &readSports);
 
     res = curl_easy_perform(sports);
     if (res != CURLE_OK)
@@ -43,8 +41,38 @@ void getSports(char buff[])
     cout << "\nSuccess\n";
     // return readBuff;
     //fix
-    parse(readBuff);
+    parse(readSports);
 }
+
+//GET Odds Endpoint
+void getOdds(){
+    string readOdds;
+    CURL *odds = curl_easy_init();
+    CURLcode res;
+
+    curl_easy_setopt(odds, CURLOPT_CUSTOMREQUEST, "GET");
+    curl_easy_setopt(odds,CURLOPT_URL, "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds/?apiKey=fd47356e9ba1963492996e83733444db&regions=us&markets=h2h,spreads&oddsFormat=american");
+    curl_easy_setopt(odds, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(odds, CURLOPT_WRITEDATA, &readOdds);
+    cout<<"Success:\n";
+    res = curl_easy_perform(odds);
+    if(res != CURLE_OK){
+        cerr<<"Error downloding website page: " <<curl_easy_strerror(res);
+        curl_easy_cleanup(odds);
+    }
+    
+    curl_easy_cleanup(odds);
+    parse(readOdds);
+
+}
+
+//GET Scores
+
+//GET Historical odds
+
+//GET event odds
+
+
 
 int main()
 {
@@ -57,11 +85,12 @@ int main()
     // Add the null terminator
     buffer[getUrl.size()] = '\0';
 
-    getSports(buffer);
+    //getSports(buffer);
+    getOdds();
     
     
     // Pass the buffer to the function
-    // getSports(buffer);
+    //getSports(buffer);
     // strlen(url);
     // strlen(api_key);
     // strcat(url, api_key);

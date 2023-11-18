@@ -1,18 +1,41 @@
 #include <iostream>
 #include <curl/curl.h>
+#include<fstream>
 #include <string.h>
 #include <nlohmann/json.hpp>
 #include <vector>
-#define base_url "https://api.the-odds-api.com/v4/sports/?apiKey=fd47356e9ba1963492996e83733444db"
+#define base_url "https://api.the-odds-api.com/v4/sports/?apiKey="
 
 using namespace std;
 using namespace nlohmann;
 // creating Api routes in the folder
 
+string envFile(){
+    ifstream envFile("../apiKey.env");
+
+    // Check if the file is open
+    if (!envFile.is_open()) {
+        return "Error opening .env file";
+        
+    }
+
+    // Read the API key from the file
+    string apiKey;
+    getline(envFile, apiKey);
+    string url = base_url;
+    if (apiKey.empty()) {
+        return "API key not found in .env file";
+        
+    }
+    url = url.append(apiKey);
+    envFile.close();
+    return url;
+}
+
 void parse(string &readBuff){
     auto p = json::parse(readBuff);
     json pdata = p;
-    cout<<pdata[0]["bookmakers"][0];
+    cout<<pdata[0];
 }
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
@@ -28,8 +51,8 @@ void getSports(char buff[])
     CURLcode res;
     curl_easy_setopt(sports, CURLOPT_CUSTOMREQUEST, "GET");
     curl_easy_setopt(sports, CURLOPT_URL, buff);
-    //curl_easy_setopt(sports, CURLOPT_WRITEFUNCTION, WriteCallback);
-    //curl_easy_setopt(sports, CURLOPT_WRITEDATA, &readSports);
+    curl_easy_setopt(sports, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(sports, CURLOPT_WRITEDATA, &readSports);
 
     res = curl_easy_perform(sports);
     if (res != CURLE_OK)
@@ -48,12 +71,24 @@ void getSports(char buff[])
 void getOdds(){
     string readOdds;
     CURL *odds = curl_easy_init();
+    CURLU * odds_handle;
     CURLcode res;
 
-    curl_easy_setopt(odds, CURLOPT_CUSTOMREQUEST, "GET");
-    curl_easy_setopt(odds,CURLOPT_URL, "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds/?apiKey=fd47356e9ba1963492996e83733444db&regions=us&markets=h2h,spreads&oddsFormat=american");
-    curl_easy_setopt(odds, CURLOPT_WRITEFUNCTION, WriteCallback);
-    curl_easy_setopt(odds, CURLOPT_WRITEDATA, &readOdds);
+    if(odds){
+        odds_handle = curl_url();
+    }
+    
+    string sports = "/sports/";
+    string api = "?apiKey=fd47356e9ba1963492996e83733444db";
+    sports = sports.append(api);
+    vector<char>sport(sports.begin(), sports.end());
+
+    curl_url_set(odds_handle, CURLUPART_URL, "https://api.the-odds-api.com/v4", 0);
+    curl_url_set(odds_handle, CURLUPART_PATH, sport.data(), 0);
+    //curl_easy_setopt(odds, CURLOPT_CUSTOMREQUEST, "GET");
+    curl_easy_setopt(odds,CURLOPT_CURLU, odds_handle);
+    //curl_easy_setopt(odds, CURLOPT_WRITEFUNCTION, WriteCallback);
+    //curl_easy_setopt(odds, CURLOPT_WRITEDATA, &readOdds);
     cout<<"Success:\n";
     res = curl_easy_perform(odds);
     if(res != CURLE_OK){
@@ -62,7 +97,8 @@ void getOdds(){
     }
     
     curl_easy_cleanup(odds);
-    parse(readOdds);
+    curl_url_cleanup(odds_handle);
+    //parse(readOdds);
 
 }
 
@@ -76,7 +112,8 @@ void getOdds(){
 
 int main()
 {
-    string url = base_url;
+    
+    string url = envFile();
     vector<char> getUrl(url.begin(), url.end());
     char buffer[getUrl.size() + 1];
     // Copy the vector contents to the buffer
@@ -86,11 +123,10 @@ int main()
     buffer[getUrl.size()] = '\0';
 
     //getSports(buffer);
-    getOdds();
-    
+    //getOdds();
     
     // Pass the buffer to the function
-    //getSports(buffer);
+    getSports(buffer);
     // strlen(url);
     // strlen(api_key);
     // strcat(url, api_key);

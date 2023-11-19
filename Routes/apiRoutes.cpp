@@ -2,7 +2,7 @@
 #include <curl/curl.h>
 #include<fstream>
 #include <string.h>
-#include <nlohmann/json.hpp>
+#include<nlohmann/json.hpp>
 #include <vector>
 #define base_url "https://api.the-odds-api.com/v4/sports/?apiKey="
 
@@ -35,7 +35,9 @@ string envFile(){
 void parse(string &readBuff){
     auto p = json::parse(readBuff);
     json pdata = p;
-    cout<<pdata[0];
+    for(int i =0; i<pdata.size(); i++){
+        cout<<pdata[i]["title"]<<endl;
+    }
 }
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
@@ -78,15 +80,18 @@ void getOdds(){
         odds_handle = curl_url();
     }
     
-    string sports = "/sports/";
-    string api = "?apiKey=fd47356e9ba1963492996e83733444db";
-    sports = sports.append(api);
+    string sports ="https://api.the-odds-api.com/v4/sports/";
+    string current = "/upcoming/odds/";
+    string api = "?apiKey=fd47356e9ba1963492996e83733444db&regions=us&markets=h2h";
+    sports +=current + api;
+    //cout<<sports<<endl;
+    //current = current.append(api);
     vector<char>sport(sports.begin(), sports.end());
 
-    curl_url_set(odds_handle, CURLUPART_URL, "https://api.the-odds-api.com/v4", 0);
-    curl_url_set(odds_handle, CURLUPART_PATH, sport.data(), 0);
+    curl_url_set(odds_handle, CURLUPART_URL, sport.data(), 0);
+    //curl_url_set(odds_handle, CURLUPART_PATH, sport, 0);
     //curl_easy_setopt(odds, CURLOPT_CUSTOMREQUEST, "GET");
-    curl_easy_setopt(odds,CURLOPT_CURLU, odds_handle);
+    //curl_easy_setopt(odds,CURLOPT_CURLU, odds_handle);
     //curl_easy_setopt(odds, CURLOPT_WRITEFUNCTION, WriteCallback);
     //curl_easy_setopt(odds, CURLOPT_WRITEDATA, &readOdds);
     cout<<"Success:\n";
@@ -112,7 +117,6 @@ void getOdds(){
 
 int main()
 {
-    
     string url = envFile();
     vector<char> getUrl(url.begin(), url.end());
     char buffer[getUrl.size() + 1];
@@ -122,15 +126,17 @@ int main()
     // Add the null terminator
     buffer[getUrl.size()] = '\0';
 
-    //getSports(buffer);
-    //getOdds();
+    getOdds();
     
     // Pass the buffer to the function
-    getSports(buffer);
-    // strlen(url);
-    // strlen(api_key);
-    // strcat(url, api_key);
-    // url = url.append(api_key);
-    // cout<<url<<endl;
-    //getSports(getUrl);
+    //getSports(buffer);
+//     string word_to_replace = "sports";
+//     string word = "upcoming/odds";
+//     size_t pos = url.find(word_to_replace);
+//     if (pos != string::npos) {
+//     url.replace(pos, word_to_replace.length(), word);
+//   }
+//     //string newUrl = url.replace(32,word.length(), word);
+//     cout<<url<<endl;
+    
 }

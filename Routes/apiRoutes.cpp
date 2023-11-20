@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #define base_url "https://api.the-odds-api.com/v4/sports/?apiKey="
+#define score_url "https://api.the-odds-api.com/v4/sports/"
 #define odds_url "https://api.the-odds-api.com/v4/sports/upcoming/odds/?apiKey="
 
 using namespace std;
@@ -19,6 +20,7 @@ struct OptionURL
 
 OptionURL envFile()
 {
+    //GET /v4/sports/{sport}/scores/?apiKey={apiKey}&daysFrom={daysFrom}&dateFormat={dateFormat}
     ifstream envFile("../apiKey.env");
     // Check if the file is open
     if (!envFile.is_open())
@@ -33,11 +35,21 @@ OptionURL envFile()
         return {"API key not found in .env file"};
     }
     string base = base_url;
+    string score = score_url;
     string oddLink = odds_url;
     string option;
 
-    cout << "Do you want to find avaiable sports or odds today?\n";
-    cout << "Type Sports or Odds: ";
+    map<string, string> scores ={
+    {"NBA", "basketball_nba"}, 
+    {"NFL", "americanfootball_nfl"}, 
+    {"MLB", "baseball_mlb"},
+    {"NHL", "icehockey_nhl"},
+    {"MMA", "mma_mixed_martial_arts"},
+    {"MLS", "soccer_usa_mls"}};
+
+    cout<<"Welcom to Parsing *Points\n";
+    cout << "What sports data would you like to find today?\nChoose from the following options\n";
+    cout << "Type Sports, Odds, Scores: ";
     string url;
     string terminator = "\0";
     getline(cin, option);
@@ -54,6 +66,22 @@ OptionURL envFile()
         oddLink.append(terminator);
         url = oddLink;
         // cout<<url<<endl;
+    }
+    else if(option=="Scores"){
+        cout<<"\nWhat sport would you like to see the latest scores?\n";
+        for(auto it = scores.begin(); it!= scores.end();it++){
+            cout<<it->first<<endl;
+        }
+        string sport_score;
+        getline(cin, sport_score);
+        if(scores.find(sport_score) !=scores.end()){
+            sport_score = scores.find(sport_score)->second;
+            score+=sport_score + "/scores/?apiKey=" + apiKey + terminator;
+            url = score;
+        }
+        else{
+            cerr<<"Could not find sport";
+        }
     }
     else
     {
@@ -192,10 +220,29 @@ void getOdds(string url)
 }
 
 // GET Scores
+void getScores(const char *aScores){
+    string readScores;
+    CURL *scores = curl_easy_init();
+    CURLcode res;
+    curl_easy_setopt(scores, CURLOPT_CUSTOMREQUEST, "GET");
+    curl_easy_setopt(scores, CURLOPT_URL, aScores);
+    curl_easy_setopt(scores, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(scores, CURLOPT_WRITEDATA, &readScores);
 
-// GET Historical odds
-
-// GET event odds
+    res = curl_easy_perform(scores);
+    if (res != CURLE_OK)
+    {
+        cout << "Error downloading web page: " << curl_easy_strerror(res) << endl;
+        curl_easy_cleanup(scores);
+    }
+    curl_easy_cleanup(scores);
+    cout << "\nSuccess\n";
+    parse(readScores);
+}
+/*Stretch Goals:
+Get Historical Odds
+Get Event Odds
+refactor to make code more DRY!!!*/
 
 int main()
 {
@@ -213,9 +260,9 @@ int main()
     {
         getOdds(url);
     }
-    else
+    else if (option =="Scores")
     {
-        cout << "Sorry" << endl;
+        getScores(view);
     }
 
     return 0;

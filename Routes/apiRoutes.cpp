@@ -101,9 +101,26 @@ void parse(string &readBuff)
 {
     auto p = json::parse(readBuff);
     json pdata = p;
+
     for (int i = 0; i < pdata.size(); i++)
     {
-        cout << pdata[i] << endl;
+        string home = pdata[i]["home_team"];
+        string away = pdata[i]["away_team"];
+        string sport = pdata[i]["sport_title"];
+        cout << sport << endl;
+        cout << home << " vs " << away << endl;
+        for (auto &bookmaker : pdata[i]["bookmakers"])
+        {
+            cout << bookmaker["title"] << endl;
+            for (auto &market : bookmaker["markets"])
+            {
+                cout << market["last_update"] << endl;
+                for(auto& outcome : market["outcomes"]){
+                    cout<<outcome["name"]<<" : "<<outcome["price"]<<endl;
+                }
+            }
+        }
+        cout << "\n";
     }
 }
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
@@ -146,14 +163,14 @@ void getSports(const char *aSports)
 // GET Odds Endpoint
 void getOdds(string url)
 {
-    cout << "What country would you like to search odds for?\n";
+    cout << "\nWhat country would you like to search odds for?\n";
     cout << "Enter one of the following options:\n";
     map<string, string> regions = {
         {"United States", "us"},
         {"United Kingdom", "uk"},
         {"Europen Union", "eu"},
         {"Australia", "au"}};
-    cout << "Countries : Market\n";
+    cout << "\nCountries : Market\n";
     for (auto itr = regions.begin(); itr != regions.end(); itr++)
     {
         cout << itr->first << endl;
@@ -179,7 +196,7 @@ void getOdds(string url)
         {"Over/Under", "totals"},
         {"Futures", "outrights"}};
 
-    cout << "What betting options would you like to bet on?\n";
+    cout << "\nWhat betting options would you like to bet on?\n";
     for (auto itr = markets.begin(); itr != markets.end(); itr++)
     {
         cout << itr->first << endl;
@@ -203,7 +220,7 @@ void getOdds(string url)
     url.append(end);
     string terminator = "\0";
     url.append(terminator);
-    //converting into char*
+    // converting into char*
     const char *odds = url.c_str();
     string response;
     CURLcode res = httpRequest(odds, response);
@@ -222,23 +239,6 @@ void getScores(const char *aScores)
     {
         parse(response);
     }
-    // string readScores;
-    // CURL *scores = curl_easy_init();
-    // CURLcode res;
-    // curl_easy_setopt(scores, CURLOPT_CUSTOMREQUEST, "GET");
-    // curl_easy_setopt(scores, CURLOPT_URL, aScores);
-    // curl_easy_setopt(scores, CURLOPT_WRITEFUNCTION, WriteCallback);
-    // curl_easy_setopt(scores, CURLOPT_WRITEDATA, &readScores);
-
-    // res = curl_easy_perform(scores);
-    // if (res != CURLE_OK)
-    // {
-    //     cout << "Error downloading web page: " << curl_easy_strerror(res) << endl;
-    //     curl_easy_cleanup(scores);
-    // }
-    // curl_easy_cleanup(scores);
-    // cout << "\nSuccess\n";
-    // parse(readScores);
 }
 /*Stretch Goals:
 Get Historical Odds

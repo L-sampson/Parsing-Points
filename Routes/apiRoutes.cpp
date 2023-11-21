@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string.h>
 #include <nlohmann/json.hpp>
+#include<pqxx/pqxx>
 #include <vector>
 #include <map>
 #define base_url "https://api.the-odds-api.com/v4/sports/?apiKey="
@@ -156,7 +157,30 @@ void getSports(const char *aSports)
     CURLcode res = httpRequest(aSports, response);
     if (res == CURLE_OK)
     {
-        parse(response);
+        vector<string> title;
+        string league_name;
+        json league_data = json::parse(response);
+        for(int i =0; i<league_data.size(); i++){
+            league_name = league_data[i]["title"];
+            title.push_back(league_name);
+        }
+
+        pqxx::connection conn("dbname = sports user = postgres");
+        if(conn.is_open()){
+            cout<<"Database opened: "<<conn.dbname()<<endl;
+            pqxx::work l_table(conn);
+            string insertQuery = "INSERT INTO leagues (LeagueName) Values ";
+            for(const string &name : title){
+                insertQuery += "('" + name + "'),";
+            }
+            insertQuery.pop_back();
+            l_table.exec(insertQuery);
+            l_table.commit();
+        }
+        else{
+            cerr<< "Can't open database" << endl;
+        }
+        
     }
 }
 

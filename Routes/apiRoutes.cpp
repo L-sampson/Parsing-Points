@@ -3,9 +3,11 @@
 #include <fstream>
 #include <string.h>
 #include <nlohmann/json.hpp>
-#include<pqxx/pqxx>
+#include <pqxx/pqxx>
+#include <pqxx/prepared_statement.hxx>
 #include <vector>
 #include <map>
+
 #define base_url "https://api.the-odds-api.com/v4/sports/?apiKey="
 #define score_url "https://api.the-odds-api.com/v4/sports/"
 #define odds_url "https://api.the-odds-api.com/v4/sports/upcoming/odds/?apiKey="
@@ -116,8 +118,9 @@ void parse(string &readBuff)
             for (auto &market : bookmaker["markets"])
             {
                 cout << market["last_update"] << endl;
-                for(auto& outcome : market["outcomes"]){
-                    cout<<outcome["name"]<<" : "<<outcome["price"]<<endl;
+                for (auto &outcome : market["outcomes"])
+                {
+                    cout << outcome["name"] << " : " << outcome["price"] << endl;
                 }
             }
         }
@@ -157,29 +160,66 @@ void getSports(const char *aSports)
     CURLcode res = httpRequest(aSports, response);
     if (res == CURLE_OK)
     {
-        vector<string> title;
-        string league_name;
+        map<string, string> sports;
+        vector<bool> active;
+        string status = "Season status: ";
         json league_data = json::parse(response);
-        for(int i =0; i<league_data.size(); i++){
-            league_name = league_data[i]["title"];
-            title.push_back(league_name);
-        }
-
-        pqxx::connection conn("dbname = sports user = postgres");
-        if(conn.is_open()){
-            cout<<"Database opened: "<<conn.dbname()<<endl;
-            pqxx::work l_table(conn);
-            string insertQuery = "INSERT INTO leagues (LeagueName) Values ";
-            for(const string &name : title){
-                insertQuery += "('" + name + "'),";
+        for (int i = 0; i < league_data.size(); i++)
+        {
+            sports["League Name"] = league_data[i]["title"];
+            sports["League Key"] = league_data[i]["key"];
+            sports["Sport Group"] = league_data[i]["group"];
+            sports["Description"] = league_data[i]["description"];
+            active.push_back(league_data[i]["active"]);
+            for (auto it = sports.begin(); it != sports.end(); it++)
+            {
+                cout << it->first << " : " << it->second << endl;
             }
-            insertQuery.pop_back();
+            if (active[i])
+            {
+                cout << status << "Active";
+                cout << endl;
+            }
+            else
+            {
+                cout << status << "Inactive";
+                cout << endl;
+            }
+            cout << endl;
+            pqxx::connection conn("dbname = sports user = postgres");
+
+        if (conn.is_open())
+        {
+            cout << "Database opened: " << conn.dbname() << endl;
+            pqxx::work l_table(conn);
+
+            // string insertQuery = "INSERT INTO leagues (LeagueName, LeagueKey, SportsType, Description) Values ";
+            string insertQuery = "INSERT INTO leagues (LeagueName, LeagueKey, SportsType, Description) VALUES ( "
+            + l_table.quote(sports["League Name"]) + ", "
+            + l_table.quote(sports["League Key"]) + ", "
+            + l_table.quote(sports["Sport Group"]) + ", "
+            + l_table.quote(sports["Description"]) + ")";
+
             l_table.exec(insertQuery);
             l_table.commit();
+            cout<<"Data Entered"<<endl;
+            conn.disconnect();
+
+            // for (const string &name : title)
+            // {
+            //     insertQuery += "('" + name + "'),";
+            // }
+            // insertQuery.pop_back();
+
+            
         }
-        else{
-            cerr<< "Can't open database" << endl;
+        else
+        {
+            cerr << "Can't open database" << endl;
         }
+        }
+
+        
         
     }
 }
@@ -261,7 +301,43 @@ void getScores(const char *aScores)
     CURLcode res = httpRequest(aScores, response);
     if (res == CURLE_OK)
     {
-        parse(response);
+        // Create a Map that links the scores and teams.
+        json score_data = json::parse(response);
+        for (int i = 0; i < score_data.size(); i++)
+        {
+            map<string, string> game_data; // Create a new map for each game
+
+            // Extract data from the current game
+            json current_game = score_data[i];
+            game_data["League"] = current_game["sport_title"];
+            game_data["Start Time"] = current_game["commence_time"];
+            game_data["Home Team"] = current_game["home_team"];
+            game_data["Away Team"] = current_game["away_team"];
+            game_data["ID(event)"] = current_game["id"];
+
+            vector<pair<string, string>> scoreboard;
+            json game_scores = score_data[i]["scores"];
+            for (int i = 0; i < game_scores.size(); i++)
+            {
+
+                pair<string, string> score(game_scores[i]["name"], game_scores[i]["score"]);
+                scoreboard.push_back(score);
+                // cout<<game_scores[i]["name"]<<" : "<<game_scores[i]["score"]<<endl;
+                // game_data["Scoreboard"] = game_scores[i]["name"] + game_scores[i]["score"];
+            }
+            // Print the game information
+            cout << "Game Information for Game " << i + 1 << ":" << endl;
+            for (auto it = game_data.begin(); it != game_data.end(); it++)
+            {
+                cout << it->first << ": " << it->second << endl;
+            }
+            cout << "Scoreboard: " << endl;
+            for (auto &board : scoreboard)
+            {
+                cout << board.first << " : " << board.second << endl;
+            }
+            cout << endl;
+        }
     }
 }
 /*Stretch Goals:
@@ -274,7 +350,6 @@ int main()
     OptionURL choice = envFile();
     string option = choice.option;
     string url = choice.url;
-
     const char *view = url.c_str();
 
     if (option == "Sports")

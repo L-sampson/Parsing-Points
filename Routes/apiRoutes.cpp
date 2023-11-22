@@ -4,6 +4,7 @@
 #include <string.h>
 #include <nlohmann/json.hpp>
 #include <pqxx/pqxx>
+#include <pqxx/prepared_statement.hxx>
 #include <vector>
 #include <map>
 
@@ -159,33 +160,67 @@ void getSports(const char *aSports)
     CURLcode res = httpRequest(aSports, response);
     if (res == CURLE_OK)
     {
-        vector<string> title;
-        string league_name;
+        map<string, string> sports;
+        vector<bool> active;
+        string status = "Season status: ";
         json league_data = json::parse(response);
         for (int i = 0; i < league_data.size(); i++)
         {
-            league_name = league_data[i]["title"];
-            title.push_back(league_name);
-        }
+            sports["League Name"] = league_data[i]["title"];
+            sports["League Key"] = league_data[i]["key"];
+            sports["Sport Group"] = league_data[i]["group"];
+            sports["Description"] = league_data[i]["description"];
+            active.push_back(league_data[i]["active"]);
+            for (auto it = sports.begin(); it != sports.end(); it++)
+            {
+                cout << it->first << " : " << it->second << endl;
+            }
+            if (active[i])
+            {
+                cout << status << "Active";
+                cout << endl;
+            }
+            else
+            {
+                cout << status << "Inactive";
+                cout << endl;
+            }
+            cout << endl;
+            pqxx::connection conn("dbname = sports user = postgres");
 
-        pqxx::connection conn("dbname = sports user = postgres");
         if (conn.is_open())
         {
             cout << "Database opened: " << conn.dbname() << endl;
             pqxx::work l_table(conn);
-            string insertQuery = "INSERT INTO leagues (LeagueName) Values ";
-            for (const string &name : title)
-            {
-                insertQuery += "('" + name + "'),";
-            }
-            insertQuery.pop_back();
+
+            // string insertQuery = "INSERT INTO leagues (LeagueName, LeagueKey, SportsType, Description) Values ";
+            string insertQuery = "INSERT INTO leagues (LeagueName, LeagueKey, SportsType, Description) VALUES ( "
+            + l_table.quote(sports["League Name"]) + ", "
+            + l_table.quote(sports["League Key"]) + ", "
+            + l_table.quote(sports["Sport Group"]) + ", "
+            + l_table.quote(sports["Description"]) + ")";
+
             l_table.exec(insertQuery);
             l_table.commit();
+            cout<<"Data Entered"<<endl;
+            conn.disconnect();
+
+            // for (const string &name : title)
+            // {
+            //     insertQuery += "('" + name + "'),";
+            // }
+            // insertQuery.pop_back();
+
+            
         }
         else
         {
             cerr << "Can't open database" << endl;
         }
+        }
+
+        
+        
     }
 }
 
@@ -279,24 +314,27 @@ void getScores(const char *aScores)
             game_data["Home Team"] = current_game["home_team"];
             game_data["Away Team"] = current_game["away_team"];
             game_data["ID(event)"] = current_game["id"];
-            
+
             vector<pair<string, string>> scoreboard;
             json game_scores = score_data[i]["scores"];
-            for(int i =0; i<game_scores.size(); i++){
-                
-                pair<string, string>score(game_scores[i]["name"], game_scores[i]["score"]);
+            for (int i = 0; i < game_scores.size(); i++)
+            {
+
+                pair<string, string> score(game_scores[i]["name"], game_scores[i]["score"]);
                 scoreboard.push_back(score);
-                //cout<<game_scores[i]["name"]<<" : "<<game_scores[i]["score"]<<endl;
-                //game_data["Scoreboard"] = game_scores[i]["name"] + game_scores[i]["score"];
+                // cout<<game_scores[i]["name"]<<" : "<<game_scores[i]["score"]<<endl;
+                // game_data["Scoreboard"] = game_scores[i]["name"] + game_scores[i]["score"];
             }
             // Print the game information
             cout << "Game Information for Game " << i + 1 << ":" << endl;
-            for (auto it = game_data.begin(); it != game_data.end(); it++) {
+            for (auto it = game_data.begin(); it != game_data.end(); it++)
+            {
                 cout << it->first << ": " << it->second << endl;
             }
-            cout<<"Scoreboard: "<<endl;
-            for(auto &board : scoreboard){
-                cout<<board.first<< " : "<<board.second<<endl;
+            cout << "Scoreboard: " << endl;
+            for (auto &board : scoreboard)
+            {
+                cout << board.first << " : " << board.second << endl;
             }
             cout << endl;
         }

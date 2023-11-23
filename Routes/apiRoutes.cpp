@@ -7,6 +7,7 @@
 #include <pqxx/prepared_statement.hxx>
 #include <vector>
 #include <map>
+#include <set>
 
 #define base_url "https://api.the-odds-api.com/v4/sports/?apiKey="
 #define score_url "https://api.the-odds-api.com/v4/sports/"
@@ -44,9 +45,12 @@ OptionURL envFile()
 
     map<string, string> scores = {
         {"NBA", "basketball_nba"},
+        {"College Basketball", "basketball_ncaab"},
         {"NFL", "americanfootball_nfl"},
+        {"College Football", "americanfootball_ncaaf"},
         {"MLB", "baseball_mlb"},
         {"NHL", "icehockey_nhl"},
+        {"Boxing", "boxing_boxing"},
         {"MMA", "mma_mixed_martial_arts"},
         {"MLS", "soccer_usa_mls"}};
 
@@ -74,6 +78,18 @@ OptionURL envFile()
     }
     else if (option == "Scores")
     {
+        cout << "Would you like to see live scores or completed games?\n";
+        cout << "Please enter live or completed\n";
+        string live;
+        getline(cin, live);
+        if (live == "completed")
+        {
+            live = "&daysFrom=1";
+        }
+        else
+        {
+            live = "";
+        }
         cout << "\nWhat sport would you like to see the latest scores?\n";
         for (auto it = scores.begin(); it != scores.end(); it++)
         {
@@ -84,7 +100,7 @@ OptionURL envFile()
         if (scores.find(sport_score) != scores.end())
         {
             sport_score = scores.find(sport_score)->second;
-            score += sport_score + "/scores/?apiKey=" + apiKey + terminator;
+            score += sport_score + "/scores/?apiKey=" + apiKey + live + terminator;
             url = score;
         }
         else
@@ -100,33 +116,33 @@ OptionURL envFile()
     return {option, url};
 }
 
-void parse(string &readBuff)
-{
-    auto p = json::parse(readBuff);
-    json pdata = p;
+// void parse(string &readBuff)
+// {
+//     auto p = json::parse(readBuff);
+//     json pdata = p;
 
-    for (int i = 0; i < pdata.size(); i++)
-    {
-        string home = pdata[i]["home_team"];
-        string away = pdata[i]["away_team"];
-        string sport = pdata[i]["sport_title"];
-        cout << sport << endl;
-        cout << home << " vs " << away << endl;
-        for (auto &bookmaker : pdata[i]["bookmakers"])
-        {
-            cout << bookmaker["title"] << endl;
-            for (auto &market : bookmaker["markets"])
-            {
-                cout << market["last_update"] << endl;
-                for (auto &outcome : market["outcomes"])
-                {
-                    cout << outcome["name"] << " : " << outcome["price"] << endl;
-                }
-            }
-        }
-        cout << "\n";
-    }
-}
+//     for (int i = 0; i < pdata.size(); i++)
+//     {
+//         string home = pdata[i]["home_team"];
+//         string away = pdata[i]["away_team"];
+//         string sport = pdata[i]["sport_title"];
+//         cout << sport << endl;
+//         cout << home << " vs " << away << endl;
+//         for (auto &bookmaker : pdata[i]["bookmakers"])
+//         {
+//             cout << bookmaker["title"] << endl;
+//             for (auto &market : bookmaker["markets"])
+//             {
+//                 cout << market["last_update"] << endl;
+//                 for (auto &outcome : market["outcomes"])
+//                 {
+//                     cout << outcome["name"] << " : " << outcome["price"] << endl;
+//                 }
+//             }
+//         }
+//         cout << "\n";
+//     }
+// }
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
     ((string *)userp)->append((char *)contents, size * nmemb);
@@ -154,6 +170,7 @@ CURLcode httpRequest(const char *view, string &response)
 }
 
 // GET sports methods
+// Add if the league is active or not.
 void getSports(const char *aSports)
 {
     string response;
@@ -188,43 +205,35 @@ void getSports(const char *aSports)
             cout << endl;
             pqxx::connection conn("dbname = sports user = postgres");
 
-        if (conn.is_open())
-        {
-            cout << "Database opened: " << conn.dbname() << endl;
-            pqxx::work l_table(conn);
+            if (conn.is_open())
+            {
+                cout << "Database opened: " << conn.dbname() << endl;
+                pqxx::work l_table(conn);
 
-            // string insertQuery = "INSERT INTO leagues (LeagueName, LeagueKey, SportsType, Description) Values ";
-            string insertQuery = "INSERT INTO leagues (LeagueName, LeagueKey, SportsType, Description) VALUES ( "
-            + l_table.quote(sports["League Name"]) + ", "
-            + l_table.quote(sports["League Key"]) + ", "
-            + l_table.quote(sports["Sport Group"]) + ", "
-            + l_table.quote(sports["Description"]) + ")";
+                // string insertQuery = "INSERT INTO leagues (LeagueName, LeagueKey, SportsType, Description) Values ";
+                string insertQuery = "INSERT INTO leagues (LeagueName, LeagueKey, SportsType, Description) VALUES ( " + l_table.quote(sports["League Name"]) + ", " + l_table.quote(sports["League Key"]) + ", " + l_table.quote(sports["Sport Group"]) + ", " + l_table.quote(sports["Description"]) + ")";
+                // Add active.
+                //  for (const string &name : title)
+                //  {
+                //      insertQuery += "('" + name + "'),";
+                //  }
+                //  insertQuery.pop_back();
 
-            l_table.exec(insertQuery);
-            l_table.commit();
-            cout<<"Data Entered"<<endl;
-            conn.disconnect();
-
-            // for (const string &name : title)
-            // {
-            //     insertQuery += "('" + name + "'),";
-            // }
-            // insertQuery.pop_back();
-
-            
+                l_table.exec(insertQuery);
+                l_table.commit();
+                cout << "Data Entered" << endl;
+                conn.disconnect();
+            }
+            else
+            {
+                cerr << "Can't open database" << endl;
+            }
         }
-        else
-        {
-            cerr << "Can't open database" << endl;
-        }
-        }
-
-        
-        
     }
 }
 
 // GET Odds Endpoint
+//Add sports Title.
 void getOdds(string url)
 {
     cout << "\nWhat country would you like to search odds for?\n";
@@ -290,7 +299,74 @@ void getOdds(string url)
     CURLcode res = httpRequest(odds, response);
     if (res == CURLE_OK)
     {
-        parse(response);
+        map<string, string> game_odds;
+        string book;
+        // vector<string> bookmaker_title;
+        string favorite;
+        string underdog;
+        string draw;
+        double favoritePrice;
+        double underdogPrice;
+        json odds_data = json::parse(response);
+        for (int i = 0; i < odds_data.size(); i++)
+        {
+            game_odds["Event ID"] = odds_data[i]["id"];
+            game_odds["Home Team"] = odds_data[i]["home_team"];
+            game_odds["Away Team"] = odds_data[i]["away_team"];
+            game_odds["League"] = odds_data[i]["sport_title"];
+            game_odds["Game Date"] = odds_data[i]["commence_time"];
+            // cout << eventid << endl;
+            // cout << sport << endl;
+            // cout << home << " vs " << away << endl;
+            favoritePrice = numeric_limits<double>::max();
+            underdogPrice = numeric_limits<double>::min();
+            for (auto it = game_odds.begin(); it != game_odds.end(); it++)
+            {
+                cout << it->first << " : " << it->second << endl;
+            }
+            for (auto &bookmaker : odds_data[i]["bookmakers"])
+            {
+                book = bookmaker["title"];
+
+                for (auto &market : bookmaker["markets"])
+                {
+
+                    for (auto &outcome : market["outcomes"])
+                    {
+                        if (outcome["price"] < favoritePrice)
+                        {
+                            favoritePrice = outcome["price"];
+                            favorite = outcome["name"];
+                        }
+                        else if (outcome["price"] > underdogPrice)
+                        {
+                            underdog = outcome["name"];
+                            underdogPrice = outcome["price"];
+                        }
+                    }
+                }
+            }
+            cout << book << endl;
+            cout << favorite << " : " << favoritePrice << endl;
+            cout << underdog << " : " << underdogPrice << endl;
+            cout << "\n";
+            pqxx::connection conn("dbname = sports user = postgres");
+            if (conn.is_open())
+            {
+                cout << "Database is open: " << conn.dbname() << endl;
+                pqxx::work o_data(conn);
+
+                string insertQuery = "INSERT INTO odds (OddsID, Bookmaker, Date, FRprice, underprice, FrontRunner, Longshot) VALUES(" + o_data.quote(game_odds["Event ID"]) + ", " + o_data.quote(book) + ", " + o_data.quote(game_odds["Game Date"]) + ", " + o_data.quote(favoritePrice) + ", " + o_data.quote(underdogPrice) + ", " + o_data.quote(favorite) + ", " + o_data.quote(underdog) + ")";
+                o_data.exec(insertQuery);
+                o_data.commit();
+                cout << "Data inserted" << endl;
+                conn.disconnect();
+            }
+            else
+            {
+                cout << "Can't open database" << endl;
+            }
+        }
     }
 }
 

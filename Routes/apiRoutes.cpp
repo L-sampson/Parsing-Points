@@ -303,6 +303,7 @@ void getOdds(string url)
         // vector<string> bookmaker_title;
         string favorite;
         string underdog;
+        string draw;
         double favoritePrice;
         double underdogPrice;
         json odds_data = json::parse(response);

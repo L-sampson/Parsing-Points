@@ -233,6 +233,7 @@ void getSports(const char *aSports)
 }
 
 // GET Odds Endpoint
+//Add sports Title.
 void getOdds(string url)
 {
     cout << "\nWhat country would you like to search odds for?\n";

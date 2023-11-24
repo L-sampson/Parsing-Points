@@ -6,3 +6,5 @@ struct OptionURL
     string option;
     string url;
 };
+
+OptionURL envFile();

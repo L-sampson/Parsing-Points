@@ -99,9 +99,3 @@ OptionURL envFile()
     envFile.close();
     return {option, url};
 }
-
-int main(){
-    OptionURL choice = envFile();
-    string option = choice.option;
-    string url = choice.url;
-}

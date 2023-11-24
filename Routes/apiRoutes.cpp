@@ -4,7 +4,6 @@
 #include <string.h>
 #include <nlohmann/json.hpp>
 #include <pqxx/pqxx>
-#include <pqxx/prepared_statement.hxx>
 #include <vector>
 #include <map>
 #include <set>
@@ -84,7 +83,7 @@ OptionURL envFile()
         getline(cin, live);
         if (live == "completed")
         {
-            live = "&daysFrom=1";
+            live = "&daysFrom=2";
         }
         else
         {
@@ -116,33 +115,33 @@ OptionURL envFile()
     return {option, url};
 }
 
-// void parse(string &readBuff)
-// {
-//     auto p = json::parse(readBuff);
-//     json pdata = p;
+/*void parse(string &readBuff)
+{
+    auto p = json::parse(readBuff);
+    json pdata = p;
 
-//     for (int i = 0; i < pdata.size(); i++)
-//     {
-//         string home = pdata[i]["home_team"];
-//         string away = pdata[i]["away_team"];
-//         string sport = pdata[i]["sport_title"];
-//         cout << sport << endl;
-//         cout << home << " vs " << away << endl;
-//         for (auto &bookmaker : pdata[i]["bookmakers"])
-//         {
-//             cout << bookmaker["title"] << endl;
-//             for (auto &market : bookmaker["markets"])
-//             {
-//                 cout << market["last_update"] << endl;
-//                 for (auto &outcome : market["outcomes"])
-//                 {
-//                     cout << outcome["name"] << " : " << outcome["price"] << endl;
-//                 }
-//             }
-//         }
-//         cout << "\n";
-//     }
-// }
+    for (int i = 0; i < pdata.size(); i++)
+    {
+        string home = pdata[i]["home_team"];
+        string away = pdata[i]["away_team"];
+        string sport = pdata[i]["sport_title"];
+        cout << sport << endl;
+        cout << home << " vs " << away << endl;
+        for (auto &bookmaker : pdata[i]["bookmakers"])
+        {
+            cout << bookmaker["title"] << endl;
+            for (auto &market : bookmaker["markets"])
+            {
+                cout << market["last_update"] << endl;
+                for (auto &outcome : market["outcomes"])
+                {
+                    cout << outcome["name"] << " : " << outcome["price"] << endl;
+                }
+            }
+        }
+        cout << "\n";
+    }
+}*/
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
     ((string *)userp)->append((char *)contents, size * nmemb);
@@ -170,7 +169,6 @@ CURLcode httpRequest(const char *view, string &response)
 }
 
 // GET sports methods
-// Add if the league is active or not.
 void getSports(const char *aSports)
 {
     string response;
@@ -179,7 +177,7 @@ void getSports(const char *aSports)
     {
         map<string, string> sports;
         vector<bool> active;
-        string status = "Season status: ";
+        string status;
         json league_data = json::parse(response);
         for (int i = 0; i < league_data.size(); i++)
         {
@@ -194,14 +192,13 @@ void getSports(const char *aSports)
             }
             if (active[i])
             {
-                cout << status << "Active";
-                cout << endl;
+                status = "Active"; 
             }
             else
             {
-                cout << status << "Inactive";
-                cout << endl;
+                status = "Inactive";
             }
+            cout << status << endl;
             cout << endl;
             pqxx::connection conn("dbname = sports user = postgres");
 
@@ -210,14 +207,12 @@ void getSports(const char *aSports)
                 cout << "Database opened: " << conn.dbname() << endl;
                 pqxx::work l_table(conn);
 
-                // string insertQuery = "INSERT INTO leagues (LeagueName, LeagueKey, SportsType, Description) Values ";
-                string insertQuery = "INSERT INTO leagues (LeagueName, LeagueKey, SportsType, Description) VALUES ( " + l_table.quote(sports["League Name"]) + ", " + l_table.quote(sports["League Key"]) + ", " + l_table.quote(sports["Sport Group"]) + ", " + l_table.quote(sports["Description"]) + ")";
-                // Add active.
-                //  for (const string &name : title)
-                //  {
-                //      insertQuery += "('" + name + "'),";
-                //  }
-                //  insertQuery.pop_back();
+                string insertQuery = "INSERT INTO leagues (LeagueName, LeagueKey, SportsType, Description, active) VALUES ( " 
+                + l_table.quote(sports["League Name"]) + ", " 
+                + l_table.quote(sports["League Key"]) + ", " 
+                + l_table.quote(sports["Sport Group"]) + ", " 
+                + l_table.quote(sports["Description"]) + ", "
+                + l_table.quote(status) + ")";
 
                 l_table.exec(insertQuery);
                 l_table.commit();
@@ -382,7 +377,8 @@ void getScores(const char *aScores)
         for (int i = 0; i < score_data.size(); i++)
         {
             map<string, string> game_data; // Create a new map for each game
-
+            vector<bool> isGame_over;
+            string game_over;
             // Extract data from the current game
             json current_game = score_data[i];
             game_data["League"] = current_game["sport_title"];
@@ -390,6 +386,7 @@ void getScores(const char *aScores)
             game_data["Home Team"] = current_game["home_team"];
             game_data["Away Team"] = current_game["away_team"];
             game_data["ID(event)"] = current_game["id"];
+            isGame_over.push_back(current_game["completed"]);
 
             vector<pair<string, string>> scoreboard;
             json game_scores = score_data[i]["scores"];
@@ -407,12 +404,49 @@ void getScores(const char *aScores)
             {
                 cout << it->first << ": " << it->second << endl;
             }
+            for(const auto &over : isGame_over){
+                over ? game_over = "Game over" : game_over = "Ongoing/Hasn't started";
+                cout<<"Completed: "<<game_over<<endl;
+            }
             cout << "Scoreboard: " << endl;
+            //fix homescore and awayscore to handle games with no current score. 
+            int homeScore, awayScore;
             for (auto &board : scoreboard)
             {
-                cout << board.first << " : " << board.second << endl;
+                if(board.first == game_data["Home Team"]){
+                    homeScore = stoi(board.second);
+                    cout<<board.first<<" : "<<homeScore<<endl;
+                }
+                else if(board.first == game_data["Away Team"]){
+                    awayScore = stoi(board.second);
+                    cout<<board.first<<" : "<<awayScore<<endl;
+                }
             }
+            
             cout << endl;
+
+            //Fix table keys
+            pqxx::connection conn("dbname = sports user = postgres");
+            if(conn.is_open()){
+                cout<<"Database is open"<<endl;
+                pqxx::work s_table(conn);
+                string insertQuery = "INSERT INTO scores(eventID, leagueName, home_team, away_team, home_score, away_score, completed, gametime) VALUES("
+                + s_table.quote(game_data["ID(event)"]) + ", "
+                +s_table.quote(game_data["League"]) + ", "
+                +s_table.quote(game_data["Home Team"]) + ", "
+                +s_table.quote(game_data["Away Team"]) + ", "
+                //fix scoreboard, and completed game.
+                +s_table.quote(homeScore) + ", "
+                +s_table.quote(awayScore) + ", "
+                +s_table.quote(game_over) + ", "
+                +s_table.quote(game_data["Start Time"]) +  ")";
+                s_table.exec(insertQuery);
+                s_table.commit();
+                conn.disconnect();
+            }
+            else{
+                cerr<<"Could not insert data"<<endl;
+            }
         }
     }
 }

@@ -6,6 +6,7 @@
 
 int main()
 {
+    cout<<"hello"<<endl;
     OptionURL choice = envFile();
     string option = choice.option;
     string url = choice.url;

@@ -1,4 +1,5 @@
 #include "get_function.hpp"
+#include "get_bet.hpp"
 
 // GET sports methods
 void getSports(const char *aSports)
@@ -37,6 +38,7 @@ void getSports(const char *aSports)
             
         }
     }
+    refreshDB("leagues");
 }
 
 // GET Odds Endpoint
@@ -167,12 +169,14 @@ void getOdds(string url)
             if(bet_option == "yes"){
                 bet_games;
                 cout<<"Great let's place some bets!!!\n";
+                userBet();
             }
             else{
                 !bet_games;
                 cout<<"Thank you for searching all the latest odds on Parsing *Points\n";
             }
     }
+    refreshDB("odds");
 }
 
 // GET Scores
@@ -237,6 +241,7 @@ void getScores(const char *aScores)
             insertScores(game_data, isGame_over, game_over, scoreboard, homeScore, awayScore);
         }
     }
+    refreshDB("scores");
 }
 /*Stretch Goals:
 Get Historical Odds

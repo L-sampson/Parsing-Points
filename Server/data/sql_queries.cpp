@@ -81,3 +81,23 @@ void insertOdds(map<string, string> game_odds,
                 cout << "Can't open database" << endl;
             }
         }
+
+void refreshDB(const string & table){
+    try{
+        pqxx::connection refresh("dbname = sports user = postgres");
+        if(refresh.is_open()){
+            cout<<"Restoring Database: \n"<<refresh.dbname()<<endl;
+            pqxx::work txn(refresh);
+            txn.exec("DELETE FROM " + table + ";");
+            txn.commit();
+            cout<<"Database restored"<<endl;
+            refresh.disconnect();
+        }
+        else{
+            cerr<<"Cannot resotre database"<<endl;
+        }
+    }
+    catch(const std::exception &e){
+        cerr<<e.what()<<endl;
+    }
+}

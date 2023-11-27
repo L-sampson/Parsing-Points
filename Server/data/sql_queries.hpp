@@ -12,3 +12,4 @@ void insertOdds(map<string, string> game_odds,
         string draw,
         double favoritePrice,
         double underdogPrice);
+void refreshDB(const string & table);

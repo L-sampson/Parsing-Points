@@ -14,4 +14,5 @@ struct Bet
 };
 
 void userBet();
+void userWager(pqxx::row row);
 

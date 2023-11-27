@@ -37,10 +37,10 @@ OptionURL envFile()
         {"MMA", "mma_mixed_martial_arts"},
         {"MLS", "soccer_usa_mls"}};
 
-    cout << "Welcome to Parsing *Points\n";
-    cout << "What sports data would you like to find today?\nChoose from the following options\n";
-    cout << "Sports, Odds, Scores: \n";
-    cout << "Please type in you selection now\n";
+    std::cout << "Welcome to Parsing *Points\n";
+    std::cout << "What sports data would you like to find today?\nChoose from the following options\n";
+    std::cout << "Sports, Odds, Scores: \n";
+    std::cout << "Please type in you selection now\n";
 
     string url;
     string terminator = "\0";
@@ -51,18 +51,48 @@ OptionURL envFile()
         // base.append(apiKey);
         // base.append(terminator);
         url = base;
-        cout<<url<<endl;
+        std::cout<<url<<endl;
     }
     else if (option == "Odds")
-    {
-        base += "upcoming/odds/?apiKey=" + apiKey + terminator;
-        url = base;
-        cout<<url<<endl;
+    {   char odds_choice;
+        string sport_odds;
+        std::cout << "\nWhat sport would you like to see the latest odds?\nEnter sports[s] to find a particular sport or all[a] for upcoming games: \n";
+        cin>>odds_choice;
+        cin.get();
+        odds_choice = tolower(odds_choice);
+        switch(odds_choice){
+        case 's':
+            for (auto it = scores.begin(); it != scores.end(); it++)
+                {
+                    std::cout << it->first << endl;
+                }
+                getline(cin, sport_odds);
+                if (scores.find(sport_odds) != scores.end())
+                {
+                sport_odds = scores.find(sport_odds) ->second;
+                base +=  sport_odds + "/odds/?apiKey=" + apiKey + terminator;
+                url = base;
+                std::cout<<url<<endl;
+                }
+                else{
+                    cerr<<"could not find sport";
+                }
+        break;
+        case 'a':
+            base += "upcoming/odds/?apiKey=" + apiKey + terminator;
+            url = base;
+            std::cout<<url<<endl;
+        break;
+        default:
+            std::cout<<"Incorrect choice made. Please try again";
+            break;
+        }
+        
     }
     else if (option == "Scores")
     {
-        cout << "Would you like to see live scores or completed games?\n";
-        cout << "Please enter live or completed\n";
+        std::cout << "Would you like to see live scores or completed games?\n";
+        std::cout << "Please enter live or completed\n";
         string live;
         getline(cin, live);
         if (live == "completed")
@@ -73,10 +103,10 @@ OptionURL envFile()
         {
             live = "";
         }
-        cout << "\nWhat sport would you like to see the latest scores?\n";
+        std::cout << "\nWhat sport would you like to see the latest scores?\n";
         for (auto it = scores.begin(); it != scores.end(); it++)
         {
-            cout << it->first << endl;
+            std::cout << it->first << endl;
         }
         string sport_score;
         getline(cin, sport_score);
@@ -85,7 +115,7 @@ OptionURL envFile()
             sport_score = scores.find(sport_score)->second;
             base += sport_score + "/scores/?apiKey=" + apiKey + live + terminator;
             url = base;
-            cout<<url<<endl;
+            std::cout<<url<<endl;
         }
         else
         {

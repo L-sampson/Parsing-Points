@@ -157,6 +157,21 @@ void getOdds(string url)
             cout << "\n";
             insertOdds(game_odds, book,favorite,underdog,draw,favoritePrice,underdogPrice);
         }
+        bool bet_games;
+            string bet_option;
+            cout<<"Would you like to bet on a game?\nEnter Yes or No:\n";
+            getline(cin, bet_option);
+            for(char s : bet_option){
+                s = tolower(s);
+            }
+            if(bet_option == "yes"){
+                bet_games;
+                cout<<"Great let's place some bets!!!\n";
+            }
+            else{
+                !bet_games;
+                cout<<"Thank you for searching all the latest odds on Parsing *Points\n";
+            }
     }
 }
 

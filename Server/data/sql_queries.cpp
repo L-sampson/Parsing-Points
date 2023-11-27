@@ -65,7 +65,12 @@ void insertOdds(map<string, string> game_odds,
                 cout << "Database is open: " << conn.dbname() << endl;
                 pqxx::work o_data(conn);
 
-                string insertQuery = "INSERT INTO odds (OddsID, Bookmaker, Date, FRprice, underprice, FrontRunner, Longshot) VALUES(" + o_data.quote(game_odds["Event ID"]) + ", " + o_data.quote(book) + ", " + o_data.quote(game_odds["Game Date"]) + ", " + o_data.quote(favoritePrice) + ", " + o_data.quote(underdogPrice) + ", " + o_data.quote(favorite) + ", " + o_data.quote(underdog) + ")";
+                string insertQuery = "INSERT INTO odds (OddsID, Bookmaker, Date, FRprice, underprice, FrontRunner, Longshot) VALUES(" 
+                + o_data.quote(game_odds["Event ID"]) 
+                + ", " + o_data.quote(book) + ", " + o_data.quote(game_odds["Game Date"]) 
+                + ", " + o_data.quote(favoritePrice) + ", " + o_data.quote(underdogPrice) 
+                + ", " + o_data.quote(favorite) + ", " 
+                + o_data.quote(underdog) + ")";
                 o_data.exec(insertQuery);
                 o_data.commit();
                 cout << "Data inserted" << endl;

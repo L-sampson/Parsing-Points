@@ -23,6 +23,6 @@ CURLcode httpRequest(const char *view, string &response)
         curl_easy_cleanup(curl);
     }
     curl_easy_cleanup(curl);
-    cout << "\nSuccess"<<CURLE_OK<<endl;;
+    cout << "\nSuccess"<<endl;;
     return res;
 }

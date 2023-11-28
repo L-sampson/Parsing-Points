@@ -1,5 +1,27 @@
 #include "get_bet.hpp"
 
+void printBetSlip(vector<Bet> bets){
+    ofstream final_bets("bets.txt", ios::trunc);
+    if(final_bets.is_open()){
+        double totalWager, totalP_earnings;
+        final_bets<<"Betting Slip\nGood Luck\n";
+        final_bets<<"***************************************\n";
+        for (const Bet &bet : bets)
+            {
+                final_bets << "Team: " << bet.team_choice << ", Wager: " << bet.wager << ", Predicted Earnings: " << bet.predicted_earnings << endl;
+                totalWager += bet.wager;
+                totalP_earnings+=bet.predicted_earnings;
+            }
+            final_bets<<"Total Wager Amount: $"<<totalWager<<endl;
+            final_bets<<"Total Predicted Earnings: $"<<totalP_earnings<<endl;
+            final_bets<<"Parsing *Points 🏈🏀🏒⚽🏏⛳🥊🥋\nFounded 2023\nDecatur, GA";
+        final_bets.close();
+    }
+    else{
+        cout<<"Unable to open the betting slip."<<endl;
+    }
+}
+
 vector<Bet> userBet()
 {
     int gameNum;
@@ -59,7 +81,8 @@ vector<Bet> userBet()
             cin >> multiBets;
 
         } while (multiBets == 'y' || multiBets == 'Y');
-
+        cout<<"Printing Betting Slip\nThank you for using Parsing *Points!\n";
+        printBetSlip(bets);
         txn.commit();
         bet.disconnect();
     }
@@ -67,7 +90,7 @@ vector<Bet> userBet()
     {
         cerr << e.what() << endl;
     }
-
+    
     return bets; // Return the vector of bets
 }
 

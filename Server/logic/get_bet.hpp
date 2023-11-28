@@ -12,8 +12,9 @@ struct Bet
     int game_number;
     double wager;
     double predicted_earnings;
+    double deposit;
 };
-void printBetSlip();
+void printBetSlip(vector<Bet> bets);
 vector<Bet> userBet();
-Bet userWager(pqxx::row row);
+Bet userWager(pqxx::row row, double deposit);
 

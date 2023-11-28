@@ -9,10 +9,10 @@ struct Bet
 {
     std::string team_choice;
     int game_number;
-    int wager;
-    int predicted_earnings;
+    double wager;
+    double predicted_earnings;
 };
 
-void userBet();
-void userWager(pqxx::row row);
+vector<Bet> userBet();
+Bet userWager(pqxx::row row);
 

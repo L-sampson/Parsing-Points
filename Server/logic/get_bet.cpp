@@ -3,17 +3,22 @@
 void printBetSlip(vector<Bet> bets){
     ofstream final_bets("bets.txt", ios::trunc);
     if(final_bets.is_open()){
-        double totalWager, totalP_earnings;
+        double remainingDeposit;
+        double totalWager =0;
+        double totalP_earnings =0;
+        // double remainingDeposit = bet.deposit;
         final_bets<<"Betting Slip\nGood Luck\n";
         final_bets<<"***************************************\n";
         for (const Bet &bet : bets)
             {
                 final_bets << "Team: " << bet.team_choice << ", Wager: " << bet.wager << ", Predicted Earnings: " << bet.predicted_earnings << endl;
+                remainingDeposit = bet.deposit;
                 totalWager += bet.wager;
                 totalP_earnings+=bet.predicted_earnings;
             }
             final_bets<<"Total Wager Amount: $"<<totalWager<<endl;
             final_bets<<"Total Predicted Earnings: $"<<totalP_earnings<<endl;
+            final_bets << "Remaining Deposit: $" << remainingDeposit << endl;
             final_bets<<"Parsing *Points 🏈🏀🏒⚽🏏⛳🥊🥋\nFounded 2023\nDecatur, GA";
         final_bets.close();
     }
@@ -24,9 +29,22 @@ void printBetSlip(vector<Bet> bets){
 
 vector<Bet> userBet()
 {
+    double deposit = 0;
+    cout<<"Current account balance: "<<deposit<<endl;
+    cout<<"Please desposit money into your account to start waging bets: \n";
+    cin>>deposit;
+    if(deposit>0){
+        cout<<"Great you deposited "<<deposit<<endl;
+        cout<<"Let's start betting!\n";
+    }
+    else{
+        cout<<"Invalid deposit amount. Please enter an amount greater than 0\n";
+    }
+    
     int gameNum;
-    std::cout << "Choose a team to place a bet.\n Select a game based on either the team name or game number!\n";
+    std::cout << "Choose a team to place a bet.\nSelect a game based on the game number!\n";
     std::cout << "Make you selection now: \n";
+    cout<<"\n";
 
     // Create a vector to store bets
     vector<Bet> bets; 
@@ -46,6 +64,7 @@ vector<Bet> userBet()
 
         do
         {
+            
             for (int i = 0; i < games.size(); i++)
             {
                 pqxx::row row(games[i]);
@@ -68,12 +87,16 @@ vector<Bet> userBet()
             }
 
             // Call userWager to get bet details
-            Bet newBet = userWager(games[gameNum - 1]);
+            Bet newBet = userWager(games[gameNum - 1], deposit);
             // Add the bet to the vector 
-            bets.push_back(newBet);                     
+            bets.push_back(newBet);
+            deposit = newBet.deposit;                     
             for (const Bet &bet : bets)
             {
-                std::cout << "Team: " << bet.team_choice << ", Wager: " << bet.wager << ", Predicted Earnings: " << bet.predicted_earnings << endl;
+                std::cout << "Team: " << bet.team_choice << 
+                ", Wager: " << bet.wager << 
+                ", Predicted Earnings: " << bet.predicted_earnings<< 
+                ", Remaining deposit: "<< bet.deposit<< endl;
             }
 
             cout << "Would you like to bet on another team?" << endl;
@@ -81,7 +104,7 @@ vector<Bet> userBet()
             cin >> multiBets;
 
         } while (multiBets == 'y' || multiBets == 'Y');
-        cout<<"Printing Betting Slip\nThank you for using Parsing *Points!\n";
+        cout<<"\nPrinting Betting Slip\nThank you for using Parsing *Points!\n";
         printBetSlip(bets);
         txn.commit();
         bet.disconnect();
@@ -94,7 +117,7 @@ vector<Bet> userBet()
     return bets; // Return the vector of bets
 }
 
-Bet userWager(pqxx::row row)
+Bet userWager(pqxx::row row, double deposit)
 {
     auto frontrunner = row[0].as<string>();
     auto longshot = row[1].as<string>();
@@ -105,11 +128,14 @@ Bet userWager(pqxx::row row)
     cout << frontrunner << " OR " << longshot << endl;
 
     string betTeam = "";
-    double wager;
+    double wager =0;
     double predicted_earnings;
     getline(cin, betTeam);
+    while(true){
+    cout<<"Account balance: "<<deposit<<endl;
     cout << "How much would you like to bet?\nEnter wager amount:\n";
     cin >> wager;
+    cout<<"\n";
 
     if (betTeam == frontrunner)
     {
@@ -120,10 +146,22 @@ Bet userWager(pqxx::row row)
         predicted_earnings = (wager * (underdog - 1));
     }
 
+    
+        if(wager<=deposit){
+            deposit-=wager;
+            //cout<<"You have "<<deposit<<" left to bet on games\n";
+            break;
+        }
+        else{
+            cerr<<"Please enter a valid wager amount\n";
+        }
+    }
+
     Bet newBet;
     newBet.team_choice = betTeam;
     newBet.wager = wager;
     newBet.predicted_earnings = predicted_earnings;
+    newBet.deposit = deposit;
 
     return newBet; // Return the bet object
 }

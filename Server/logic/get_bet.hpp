@@ -3,6 +3,7 @@
 #include<string>
 #include<map>
 #include<pqxx/pqxx>
+#include<fstream>
 
 using namespace std;
 struct Bet
@@ -12,7 +13,7 @@ struct Bet
     double wager;
     double predicted_earnings;
 };
-
+void printBetSlip();
 vector<Bet> userBet();
 Bet userWager(pqxx::row row);
 

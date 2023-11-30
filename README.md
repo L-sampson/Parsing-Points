@@ -1,5 +1,5 @@
 # Parsing *Points
-Sports Scores/Betting backend application that retrieves the latest scores and odds of a games, league, or sporting event
+Sports Scores/Betting backend application that retrieves the latest scores and odds of games, leagues, or sporting events.
 
 * Have you ever wanted to see the live scores for your favorite sport/team but didn’t want to parse through multiple websites? 
 * Wanted to find the best betting odds on a game/event regardless of the bookmaker? 
@@ -10,7 +10,7 @@ Parsing *Points has all the features a sport fan needs to place bets and see liv
 ## Features
 * Retrieves all in-season(sports)
 * Retrieves live and completed scores for the past 3 days.
-* Retrieves betting odds from multiple bookmakers in table to reference odds/scores.
+* Retrieves betting odds from multiple bookmakers and stores in table to reference odds/scores later.
 * Allows users to place bets and give a prediction for potential earnings.
 * Allows users to save their bets/predictions as a file(BetSlip) to print and take to their favorite sporting event. 
 
@@ -41,7 +41,9 @@ File Tree:
      ├── Server
      │   └── data
      │       ├── curl_request.hpp
+     |       ├── curl_request.cpp       
      │       ├── option_url.hpp
+     |       ├── option_url.cpp
      │       ├── sql_queries.hpp
      │       └── sql_queries.cpp
      │   └── logic
@@ -52,10 +54,14 @@ File Tree:
      ├── bets.txt
      └── main.cpp
 ```
-## Complie
-Complile using the apporpriate flags:
+## Complie & Run
+Complile using the appropriate flags:
 ```bash
 g++ main.cpp -o API ./data/*.cpp ./logic/*.cpp -I./logic -I./data -lcurl -lpqxx
+```
+Run as Postgres User:
+```bash
+postgres@penguin:/path/to/directory
 ```
 
 ## Usage

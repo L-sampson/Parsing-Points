@@ -113,7 +113,9 @@ Parsing *Points 🏈🏀🏒⚽🏏⛳🥊🥋
 Founded 2023
 ```
 # License
-![Static Badge](https://img.shields.io/badge/MIT-License-brightgreen?link=https%3A%2F%2Fgist.github.com%2FL-sampson%2F946c89a47c45629b0bafe0a7c4891af8)
+![Static Badge](https://img.shields.io/badge/MIT-License-%23f5dfa2?style=plastic&link=https%3A%2F%2Fgist.github.com%2FL-sampson%2F946c89a47c45629b0bafe0a7c4891af8&link=https%3A%2F%2Fgist.github.com%2FL-sampson%2F946c89a47c45629b0bafe0a7c4891af8)
+
+
 
  
 

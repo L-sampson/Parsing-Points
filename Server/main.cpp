@@ -1,4 +1,4 @@
-#include<iostream>
+#include <iostream>
 #include "get_function.hpp"
 #include "sql_queries.hpp"
 #include "curl_request.hpp"

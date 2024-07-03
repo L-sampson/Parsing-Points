@@ -1,8 +1,21 @@
 #include "sql_queries.hpp"
+#include "env_file_handler.hpp"
 
 using namespace std;
+
+std::string GetConnectionString() {
+    std::string envFilePath = "./postgres_key.env";
+    std::unordered_map<std::string, std::string> env_map = ReadEnvFile(envFilePath);
+    std::string db_name = env_map["DB_NAME"];
+    std::string db_user = env_map["DB_USER"];
+
+    std::string connection_string("dbname = " + db_name + " user = " + db_user);
+    return connection_string;
+}
+
 void insertLeagueData(map<string, string> &sports, vector<bool> active, string status){
-    pqxx::connection conn("dbname = sports user = postgres");
+    std::string connection_string = GetConnectionString();
+    pqxx::connection conn(connection_string.c_str());
 
             if (conn.is_open())
             {
@@ -19,7 +32,7 @@ void insertLeagueData(map<string, string> &sports, vector<bool> active, string s
                 l_table.exec(insertQuery);
                 l_table.commit();
                 cout << "Data Entered" << endl;
-                conn.disconnect();
+                return;
             }
             else
             {
@@ -29,7 +42,8 @@ void insertLeagueData(map<string, string> &sports, vector<bool> active, string s
 
 void insertScores(map<string, string> game_data, vector<bool> isGame_over, string game_over, vector<pair<string, string>> scoreboard, int homeScore, int awayScore){
     //Fix table keys
-            pqxx::connection conn("dbname = sports user = postgres");
+    std::string connection_string = GetConnectionString();
+            pqxx::connection conn(connection_string.c_str());
             if(conn.is_open()){
                 cout<<"Database is open"<<endl;
                 pqxx::work s_table(conn);
@@ -45,7 +59,7 @@ void insertScores(map<string, string> game_data, vector<bool> isGame_over, strin
                 +s_table.quote(game_data["Start Time"]) +  ")";
                 s_table.exec(insertQuery);
                 s_table.commit();
-                conn.disconnect();
+                return;
             }
             else{
                 cerr<<"Could not insert data"<<endl;
@@ -59,7 +73,8 @@ void insertOdds(map<string, string> game_odds,
         string draw,
         double favoritePrice,
         double underdogPrice){
-            pqxx::connection conn("dbname = sports user = postgres");
+            std::string connection_string = GetConnectionString();
+            pqxx::connection conn(connection_string.c_str());
             if (conn.is_open())
             {
                 cout << "Database is open: " << conn.dbname() << endl;
@@ -74,7 +89,7 @@ void insertOdds(map<string, string> game_odds,
                 o_data.exec(insertQuery);
                 o_data.commit();
                 cout << "Data inserted" << endl;
-                conn.disconnect();
+                return;
             }
             else
             {
@@ -84,14 +99,15 @@ void insertOdds(map<string, string> game_odds,
 
 void refreshDB(const string & table){
     try{
-        pqxx::connection refresh("dbname = sports user = postgres");
+        std::string connection_string = GetConnectionString();
+        pqxx::connection refresh(connection_string.c_str());
         if(refresh.is_open()){
             cout<<"Restoring Database: \n"<<refresh.dbname()<<endl;
             pqxx::work txn(refresh);
             txn.exec("DELETE FROM " + table + ";");
             txn.commit();
             cout<<"Database restored"<<endl;
-            refresh.disconnect();
+            return;
         }
         else{
             cerr<<"Cannot resotre database"<<endl;

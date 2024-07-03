@@ -107,7 +107,6 @@ vector<Bet> userBet()
         cout<<"\nPrinting Betting Slip\nThank you for using Parsing *Points!\n";
         printBetSlip(bets);
         txn.commit();
-        bet.disconnect();
     }
     catch (const std::exception &e)
     {

@@ -1,9 +1,9 @@
-#include<iostream>
-#include<vector>
-#include<string>
-#include<map>
-#include<pqxx/pqxx>
-#include<fstream>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <map>
+#include <pqxx/pqxx>
+#include <fstream>
 
 using namespace std;
 struct Bet

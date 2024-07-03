@@ -1,5 +1,5 @@
-#include<iostream>
-#include<string>
+#include <iostream>
+#include <string>
 #include "curl_request.hpp"
 using namespace std;
 extern size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)

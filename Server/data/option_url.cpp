@@ -1,4 +1,4 @@
-#include<iostream>
+#include <iostream>
 #include <fstream>
 #include <string>
 #include <map>
@@ -10,7 +10,7 @@ using namespace std;
 OptionURL envFile()
 {
 
-    ifstream envFile("../apiKey.env");
+    ifstream envFile("./apiKey.env");
     // Check if the file is open
     if (!envFile.is_open())
     {

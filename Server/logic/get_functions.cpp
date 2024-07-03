@@ -34,11 +34,11 @@ void getSports(const char *aSports)
             cout << status << endl;
             cout << endl;
             
-            insertLeagueData(sports, active, status);
+            // insertLeagueData(sports, active, status);
             
         }
     }
-    refreshDB("leagues");
+    // refreshDB("leagues");
 }
 
 // GET Odds Endpoint

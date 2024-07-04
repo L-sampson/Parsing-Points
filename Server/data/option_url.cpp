@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 #include <fstream>
 #include <string>
 #include <map>
@@ -9,20 +10,13 @@ using namespace std;
 
 OptionURL envFile()
 {
+    const string apiKey = std::getenv("SPORTS_ODDS_API_KEY");
+    if(apiKey.empty()) {
+        std::cout << "Key Found: " << apiKey << std::endl;
+    } else {
+        std::cerr << "Unable to find key" << std::endl;
+    }
 
-    ifstream envFile("./apiKey.env");
-    // Check if the file is open
-    if (!envFile.is_open())
-    {
-        return {"Error opening .env file"};
-    }
-    // Read the API key from the file
-    string apiKey;
-    getline(envFile, apiKey);
-    if (apiKey.empty())
-    {
-        return {"API key not found in .env file"};
-    }
     string base = base_url;
     string option;
 
@@ -48,10 +42,7 @@ OptionURL envFile()
     if (option == "Sports")
     {
         base += "?apiKey=" + apiKey + terminator;
-        // base.append(apiKey);
-        // base.append(terminator);
         url = base;
-        std::cout<<url<<endl;
     }
     else if (option == "Odds")
     {   char odds_choice;
@@ -72,7 +63,6 @@ OptionURL envFile()
                 sport_odds = scores.find(sport_odds) ->second;
                 base +=  sport_odds + "/odds/?apiKey=" + apiKey + terminator;
                 url = base;
-                std::cout<<url<<endl;
                 }
                 else{
                     cerr<<"could not find sport";
@@ -81,7 +71,7 @@ OptionURL envFile()
         case 'a':
             base += "upcoming/odds/?apiKey=" + apiKey + terminator;
             url = base;
-            std::cout<<url<<endl;
+            
         break;
         default:
             std::cout<<"Incorrect choice made. Please try again";
@@ -115,7 +105,7 @@ OptionURL envFile()
             sport_score = scores.find(sport_score)->second;
             base += sport_score + "/scores/?apiKey=" + apiKey + live + terminator;
             url = base;
-            std::cout<<url<<endl;
+            
         }
         else
         {
@@ -126,6 +116,6 @@ OptionURL envFile()
     {
         cerr << "Error: ";
     }
-    envFile.close();
+
     return {option, url};
 }

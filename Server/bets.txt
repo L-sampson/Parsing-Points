@@ -1,10 +1,9 @@
 Betting Slip
 Good Luck
 ***************************************
-Team: Howard Bison, Wager: 200, Predicted Earnings: 1100
-Team: Barrow, Wager: 300, Predicted Earnings: 42
+Team: Baltimore Orioles, Wager: 500, Predicted Earnings: 320
 Total Wager Amount: $500
-Total Predicted Earnings: $1142
+Total Predicted Earnings: $320
 Remaining Deposit: $0
 Parsing *Points 🏈🏀🏒⚽🏏⛳🥊🥋
 Founded 2023

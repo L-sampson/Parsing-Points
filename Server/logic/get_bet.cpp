@@ -27,6 +27,14 @@ void printBetSlip(vector<Bet> bets){
     }
 }
 
+std::string GetConnectString() {
+    const std::string db_name = std::getenv("POSTGRES_DB");
+    // const std::string db_user = std::getenv("POSTGRES_USER");
+    std::cout << "Connect to database with name: " << db_name <<std::endl;
+    std::string connection_string("dbname = " + db_name);
+    return connection_string;
+}
+
 vector<Bet> userBet()
 {
     double deposit = 0;
@@ -51,7 +59,8 @@ vector<Bet> userBet()
 
     try
     {
-        pqxx::connection bet("dbname = sports user = postgres");
+        std::string connection_string = GetConnectString();
+        pqxx::connection bet(connection_string.c_str());
         if (!bet.is_open())
         {
             cout << "Cannot open Database\n";

@@ -1,15 +1,12 @@
 #include "sql_queries.hpp"
-#include "env_file_handler.hpp"
+#include <cstdlib>
 
 using namespace std;
 
 std::string GetConnectionString() {
-    std::string envFilePath = "./postgres_key.env";
-    std::unordered_map<std::string, std::string> env_map = ReadEnvFile(envFilePath);
-    std::string db_name = env_map["DB_NAME"];
-    std::string db_user = env_map["DB_USER"];
-
-    std::string connection_string("dbname = " + db_name + " user = " + db_user);
+    const std::string db_name = std::getenv("POSTGRES_DB");
+    std::cout << "Connect to database with name: " << db_name <<std::endl;
+    std::string connection_string("dbname = " + db_name);
     return connection_string;
 }
 

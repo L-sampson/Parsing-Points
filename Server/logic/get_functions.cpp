@@ -5,7 +5,8 @@
 void getSports(const char *aSports)
 {
     string response;
-    CURLcode res = httpRequest(aSports, response);
+    CurlRequest sportRequest;
+    CURLcode res = sportRequest.httpRequest(aSports, response);
     if (res == CURLE_OK)
     {
         map<string, string> sports;
@@ -105,7 +106,8 @@ void getOdds(string url)
     // converting into char*
     const char *odds = url.c_str();
     string response;
-    CURLcode res = httpRequest(odds, response);
+    CurlRequest oddsRequest;
+    CURLcode res = oddsRequest.httpRequest(odds, response);
     if (res == CURLE_OK)
     {
         map<string, string> game_odds;
@@ -183,7 +185,8 @@ void getOdds(string url)
 void getScores(const char *aScores)
 {
     string response;
-    CURLcode res = httpRequest(aScores, response);
+    CurlRequest scoresRequest;
+    CURLcode res = scoresRequest.httpRequest(aScores, response);
     if (res == CURLE_OK)
     {
         // Create a Map that links the scores and teams.

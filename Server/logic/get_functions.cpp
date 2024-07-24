@@ -1,20 +1,21 @@
 #include "get_function.hpp"
-#include "get_bet.hpp"
+// #include "get_bet.hpp"
 
 // GET sports methods
-void getSports(const char *aSports)
+json getSports(const char *sports_url)
 {
     string response;
     CurlRequest sportRequest;
-    CURLcode res = sportRequest.httpRequest(aSports, response);
+    CURLcode res = sportRequest.httpRequest(sports_url, response);
     if (res == CURLE_OK)
     {
-        map<string, string> sports;
-        vector<bool> active;
-        string status;
+        
         json league_data = json::parse(response);
         for (int i = 0; i < league_data.size(); i++)
         {
+            map<string, string> sports;
+            vector<bool> active;
+            string status;
             sports["League Name"] = league_data[i]["title"];
             sports["League Key"] = league_data[i]["key"];
             sports["Sport Group"] = league_data[i]["group"];
@@ -38,8 +39,10 @@ void getSports(const char *aSports)
             // insertLeagueData(sports, active, status);
             
         }
+        return league_data;
     }
     // refreshDB("leagues");
+    return {};
 }
 
 // GET Odds Endpoint
@@ -159,7 +162,7 @@ void getOdds(string url)
             cout << favorite << " : " << favoritePrice << endl;
             cout << underdog << " : " << underdogPrice << endl;
             cout << "\n";
-            insertOdds(game_odds, book,favorite,underdog,draw,favoritePrice,underdogPrice);
+            // insertOdds(game_odds, book,favorite,underdog,draw,favoritePrice,underdogPrice);
         }
         bool bet_games;
             string bet_option;
@@ -171,22 +174,22 @@ void getOdds(string url)
             if(bet_option == "yes"){
                 bet_games;
                 cout<<"Great let's place some bets!!!\n";
-                userBet();
+                // userBet();
             }
             else{
                 !bet_games;
                 cout<<"Thank you for searching all the latest odds on Parsing *Points\n";
             }
     }
-    refreshDB("odds");
+    // refreshDB("odds");
 }
 
 // GET Scores
-void getScores(const char *aScores)
+json getScores(const char *scores_url)
 {
     string response;
     CurlRequest scoresRequest;
-    CURLcode res = scoresRequest.httpRequest(aScores, response);
+    CURLcode res = scoresRequest.httpRequest(scores_url, response);
     if (res == CURLE_OK)
     {
         // Create a Map that links the scores and teams.
@@ -241,10 +244,11 @@ void getScores(const char *aScores)
             
             cout << endl;
 
-            insertScores(game_data, isGame_over, game_over, scoreboard, homeScore, awayScore);
+            // insertScores(game_data, isGame_over, game_over, scoreboard, homeScore, awayScore);
         }
+        return score_data;
     }
-    refreshDB("scores");
+    return {};
 }
 /*Stretch Goals:
 Get Historical Odds

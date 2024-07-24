@@ -1,10 +1,16 @@
-#include <iostream>
+#ifndef OPTION_URL_HPP
+#define OPTION_URL_HPP
 
+#include <iostream>
 using namespace std;
-struct OptionURL
-{
-    string option;
-    string url;
+
+class OptionURL {
+    private: 
+        std::string option_url;
+
+    public:
+        std::string getOptionUrl(const std::string& option);
+        std::string getSportsWithParamURL(const std::string& param);
 };
 
-OptionURL envFile();
+#endif 

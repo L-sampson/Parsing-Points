@@ -1,0 +1,15 @@
+<body>
+  <h1>Available Sports & Events</h1>
+  <div class="sports-grid">
+    <div class="sports-cards" *ngFor="let sport of sports_titles">
+      <mat-card class="sport-card">
+        <mat-card-content>
+          <mat-card-title><b>{{ sport.title }}</b></mat-card-title>
+          <mat-card-subtitle>{{ sport.group }}</mat-card-subtitle>
+          <mat-card-subtitle>Description: {{ sport.description }}</mat-card-subtitle>
+          <mat-card-subtitle>Betting Odds: {{ sport.has_outrights }}</mat-card-subtitle>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</body>

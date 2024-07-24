@@ -1,9 +1,3 @@
-<h1>Crow Backend Message: </h1>
-<div *ngFor="let element of data">
-    <p>Title: {{element.title}}</p>
-    <p>Group: {{element.group}}</p>
-    <p>Description: {{element.description}}</p>
-    <p>Active: {{element.active}}</p>
-    <p>Betting Odds: {{element.has_outrights }}</p>
-    <br>
-</div>
+<app-header></app-header>
+<router-outlet></router-outlet>
+<!-- <app-sports-list></app-sports-list> -->

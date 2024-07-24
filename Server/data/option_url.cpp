@@ -11,7 +11,7 @@ using namespace std;
 std::string getApiKey() {
      const string apiKey = std::getenv("SPORTS_ODDS_API_KEY");
     if(!apiKey.empty()) {
-        std::cout << "Key Found: " << apiKey << std::endl;
+        std::cout << "Key Found" << std::endl;
         return apiKey;
     } else {
         std::cerr << "Unable to find key" << std::endl;

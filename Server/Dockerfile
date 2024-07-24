@@ -1,22 +1,20 @@
 FROM ubuntu:latest
 
 ARG SPORTS_ODDS_API_KEY
-ARG POSTGRES_DB
 
-RUN apt-get update && apt-get install -y --no-install-recommends gcc g++ libpqxx-dev curl libcurl4-openssl-dev ca-certificates
-
-WORKDIR /usr/include
-RUN mkdir nlohmann
-RUN curl -L https://github.com/nlohmann/json/releases/download/v3.11.3/json.hpp -o nlohmann/json.hpp
-
-COPY . /usr/src/parsing-points
+RUN apt-get update && apt-get install -y --no-install-recommends gcc g++ cmake curl libcurl4-openssl-dev ca-certificates make git libssl-dev libasio-dev
 
 WORKDIR /usr/src/parsing-points
 
+COPY . .
+
+
+RUN mkdir build && cd build && cmake -G "Unix Makefiles" ..
+
+RUN cd build && make
+
+EXPOSE 8080
+
 ENV SPORTS_ODDS_API_KEY=$SPORTS_ODDS_API_KEY
-ENV POSTGRES_DB=$POSTGRES_DB
 
-
-RUN g++ main.cpp -o main ./data/*.cpp ./logic/*.cpp -I./logic -I./data -lcurl -lpqxx
-
-CMD [ "./main" ]
+CMD [ "./build/API" ]

@@ -35,4 +35,4 @@
 *.app
 
 # CMake build files
-Server/build/*
+**/build/

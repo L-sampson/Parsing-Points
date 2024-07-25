@@ -15,7 +15,7 @@ jobs:
 
         - name: Convert repo owner to lowercase
           run: |
-            echo "REPO_OWNER=$(echo ${{ github.repository_owner }} | tr 'A-Z' 'a-z') >> $GITHUB_ENV"
+            echo "REPO=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
         
         - name: Setup Docker Buildx
           uses: docker/setup-buildx-action@v2
@@ -33,7 +33,7 @@ jobs:
             context: ./Server
             file: ./Server/docker-compose.yml
             push: true
-            tags: ghcr.io/${{ env.REPO_OWNER }}/parsing-points-server:latest
+            tags: ghcr.io/${{ env.REPO }}/parsing-points-server:latest
             build-args: SPORTS_ODDS_API_KEY=${{ secrets.SPORTS_ODDS_API_KEY }}
         
         - name: Run Server Mock Tests

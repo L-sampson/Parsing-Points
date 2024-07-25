@@ -48,5 +48,5 @@ jobs:
         - name: Run Server Mock Tests
           run: |
             cd Server
-            docker-compose run test
+            SPORTS_ODDS_API_KEY=${{ secrets.SPORTS_ODDS_API_KEY }} docker-compose run test
 

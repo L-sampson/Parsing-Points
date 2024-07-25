@@ -13,12 +13,10 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/data)
-# file(GLOB_RECURSE option_url_src "${CMAKE_CURRENT_SOURCE_DIR}/data/*.cpp")
 
 set(DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../data)
 include_directories(${DATA_DIR})
-file(GLOB_RECURSE option_url_src "${DATA_DIR}/option_url.cpp")
+file(GLOB option_url_src "${DATA_DIR}/option_url.cpp")
 
 message("Current list of source files:")
 foreach(source_file ${option_url_src})

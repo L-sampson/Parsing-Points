@@ -1,0 +1,19 @@
+FROM ubuntu:latest AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends gcc g++ cmake curl libcurl4-openssl-dev ca-certificates make git libssl-dev libasio-dev
+
+WORKDIR /usr/src/app
+
+COPY . .
+
+RUN mkdir build && cd build && cmake -G "Unix Makefiles" ..
+RUN cd build && make server
+
+FROM builder
+
+COPY --from=builder /usr/src/app/build/server /usr/bin/server
+
+EXPOSE 8080
+ENV SPORTS_ODDS_API_KEY=$SPORTS_ODDS_API_KEY
+
+CMD ["./build/server"]

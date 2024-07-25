@@ -8,19 +8,20 @@
 
 using namespace std;
 
-OptionURL envFile()
-{
-    const string apiKey = std::getenv("SPORTS_ODDS_API_KEY");
-    if(apiKey.empty()) {
-        std::cout << "Key Found: " << apiKey << std::endl;
+std::string getApiKey() {
+     const string apiKey = std::getenv("SPORTS_ODDS_API_KEY");
+    if(!apiKey.empty()) {
+        std::cout << "Key Found" << std::endl;
+        return apiKey;
     } else {
         std::cerr << "Unable to find key" << std::endl;
+        return "";
     }
+}
 
-    string base = base_url;
-    string option;
-
-    map<string, string> scores = {
+std::string OptionURL::getOptionUrl(const std::string& option)
+{
+map<string, string> scores = {
         {"NBA", "basketball_nba"},
         {"College Basketball", "basketball_ncaab"},
         {"NFL", "americanfootball_nfl"},
@@ -30,19 +31,16 @@ OptionURL envFile()
         {"Boxing", "boxing_boxing"},
         {"MMA", "mma_mixed_martial_arts"},
         {"MLS", "soccer_usa_mls"}};
-
-    std::cout << "Welcome to Parsing *Points\n";
-    std::cout << "What sports data would you like to find today?\nChoose from the following options\n";
-    std::cout << "Sports, Odds, Scores: \n";
-    std::cout << "Please type in you selection now\n";
-
+    string base = base_url;
+    std::string apiKey = getApiKey();
     string url;
     string terminator = "\0";
-    getline(cin, option);
+    std::cout << option << " here is the options" << std::endl;
     if (option == "Sports")
     {
         base += "?apiKey=" + apiKey + terminator;
-        url = base;
+        option_url = base;
+        return option_url;
     }
     else if (option == "Odds")
     {   char odds_choice;
@@ -117,5 +115,33 @@ OptionURL envFile()
         cerr << "Error: ";
     }
 
-    return {option, url};
+    return option_url;
+}
+
+std::string OptionURL::getSportsWithParamURL(const std::string& param) {
+    option_url = base_url;
+    map<string, string> sports = {
+        {"nba", "basketball_nba"},
+        {"nccab", "basketball_ncaab"},
+        {"nfl", "americanfootball_nfl"},
+        {"nccaf", "americanfootball_ncaaf"},
+        {"mlb", "baseball_mlb"},
+        {"nhl", "icehockey_nhl"},
+        {"boxing", "boxing_boxing"},
+        {"mma", "mma_mixed_martial_arts"},
+        {"mls", "soccer_usa_mls"}
+        };
+
+        std::string sport_score;
+        
+        if(sports.find(param) != sports.end()) {
+            std::string terminator = "\0";
+            std::string apiKey = getApiKey();
+            sport_score = sports[param];
+            option_url += sport_score + "/scores/?apiKey=" + apiKey + terminator;
+            return option_url;
+        } else {
+            std::cerr << "Could not find sport\n";
+        }
+        return "";
 }

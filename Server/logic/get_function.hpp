@@ -7,6 +7,6 @@
 #include "sql_queries.hpp"
 using namespace std;
 using namespace nlohmann;
-void getSports(const char *aSports);
+json getSports(const char *aSports);
 void getOdds(std::string url);
-void getScores(const char * aScores);
+json getScores(const char * scores_url);

@@ -1,0 +1,28 @@
+.sports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20%, 1fr));
+    grid-gap: 1vw;
+    padding: 1vw;
+    grid-auto-rows: 220px;
+}
+
+h1 {
+    text-align: center;
+    color: #1D1E2C;
+    text-shadow: -1px -1px 0 aquamarine, 1px -1px 0 aquamarine, -1px 1px 0 aquamarine, 1px 1px 0 aquamarine;
+}
+
+.sport-card {
+    height: 175px;
+    background-color: #1D1E2C;
+    color: aquamarine;
+}
+
+.sport-card:hover {
+    box-shadow: 0 0 10px 10px aquamarine;
+    cursor: pointer;
+}
+
+mat-card-subtitle {
+    color: #efe7bc;  
+}

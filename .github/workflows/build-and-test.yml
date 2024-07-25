@@ -27,13 +27,22 @@ jobs:
             username: ${{ github.repository_owner }}
             password: ${{ secrets.GITHUB_TOKEN }}
 
-        - name: Build and push server Docker compose
+        - name: Build and push server image
           uses: docker/build-push-action@v4
           with:
-            context: ./Server
-            file: ./Server/docker-compose.yml
+            context: ./Server/dockerfiles
+            file: ./Server/dockerfiles/Dockerfile.api
             push: true
             tags: ghcr.io/${{ env.REPO }}/parsing-points-server:latest
+            build-args: SPORTS_ODDS_API_KEY=${{ secrets.SPORTS_ODDS_API_KEY }}
+
+        - name: Build and push server test
+          uses: docker/build-push-action@v4
+          with:
+            context: ./Server/dockerfiles
+            file: ./Server/dockerfiles/Dockerfile.test
+            push: true
+            tags: ghcr.io/${{ env.REPO }}/server-test:latest
             build-args: SPORTS_ODDS_API_KEY=${{ secrets.SPORTS_ODDS_API_KEY }}
         
         - name: Run Server Mock Tests

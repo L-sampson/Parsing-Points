@@ -1,0 +1,32 @@
+<div class="expansion-panels" *ngFor="let sport of sportScoreMap | keyvalue">
+<mat-expansion-panel >
+    <mat-expansion-panel-header>
+        <mat-panel-title>
+            {{sport.key | uppercase}}
+        </mat-panel-title>
+    </mat-expansion-panel-header>
+    <div class="expansion-content" *ngFor="let game of sport.value">
+        <mat-card appearance="outlined">
+            <mat-card-header>
+                <mat-card-title>
+                    {{game.commence_time | date: 'medium'}}
+                </mat-card-title>
+                <mat-card-subtitle>
+                    Completed: 
+                    <span *ngIf="!game.completed">Live/Has Not Started</span>
+                </mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <h2>{{game.home_team}} : {{game.scoreboard?.[0]?.score ?? 0 }}</h2>
+                <hr>
+                <h2>{{game.away_team}} : {{game.scoreboard?.[1]?.score ?? 0 }}</h2>
+            </mat-card-content>
+            <mat-card-actions align="end">
+                <button mat-button>Betting Odds</button>
+            </mat-card-actions>
+        </mat-card>        
+        <br>
+    </div>
+</mat-expansion-panel>
+<br>
+</div>

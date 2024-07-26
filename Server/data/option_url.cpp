@@ -122,6 +122,7 @@ std::string OptionURL::getSportsWithParamURL(const std::string& param) {
     option_url = base_url;
     map<string, string> sports = {
         {"nba", "basketball_nba"},
+        {"wnba","basketball_wnba"},
         {"nccab", "basketball_ncaab"},
         {"nfl", "americanfootball_nfl"},
         {"nccaf", "americanfootball_ncaaf"},
@@ -129,7 +130,8 @@ std::string OptionURL::getSportsWithParamURL(const std::string& param) {
         {"nhl", "icehockey_nhl"},
         {"boxing", "boxing_boxing"},
         {"mma", "mma_mixed_martial_arts"},
-        {"mls", "soccer_usa_mls"}
+        {"mls", "soccer_usa_mls"}, 
+        {"nrl", "rugbyleague_nrl"}
         };
 
         std::string sport_score;

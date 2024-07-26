@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
+import { Sports } from '../../interfaces/sports';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-sports-list',
@@ -11,13 +13,13 @@ import { CommonModule } from '@angular/common';
   styleUrl: './sports-list.component.css'
 })
 export class SportsListComponent {
-  sports: any;
-  sports_titles: Set<any> = new Set();
+  sports!: Sports;
+  sports_titles: Set<Sports> = new Set();
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.http.get<any>('http://0.0.0.0:8080/sports')
+    this.http.get<any>(`${environment.apiUrl}/sports`)
     .subscribe(sports => {
       this.sports = sports;
       sports.forEach((sport: any) => {

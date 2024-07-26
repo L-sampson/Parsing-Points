@@ -47,6 +47,8 @@ int main()
     const char* scores_url = url.c_str();
     json sport_scores = getScores(scores_url);
     std::string scores = sport_scores.dump(4);
+    res.set_header("Content-Type", "text/plain");
+    res.set_header("Access-Control-Allow-Origin", "http://localhost:4200");
     res.write(scores);
     res.end();
   });

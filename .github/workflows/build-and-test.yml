@@ -8,7 +8,7 @@ on:
         branches: [fullStack]
     pull_request:
         branches: [main]
-    workflow_dsipatch:
+    workflow_dispatch:
 
 permissions:
     contents: read

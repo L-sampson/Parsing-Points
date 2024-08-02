@@ -58,10 +58,15 @@ jobs:
             cd Server
             sudo docker --version
         
-        - name: Print Azure publish profile secret
+        - name: Print publish profile secret
           run: |
-            echo "Azure publish profile secret:"
+          
+            echo "Full publish profile secret:"
             echo "${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}"
+
+            
+            echo "Extracting publishUrl:"
+            echo "${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" | grep -oP '(?<=publishUrl=")[^"]*'
 
     deploy:
       permissions:

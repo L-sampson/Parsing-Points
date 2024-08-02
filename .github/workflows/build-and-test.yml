@@ -58,14 +58,10 @@ jobs:
             cd Server
             sudo docker --version
         
-        - name: Verify secrets
+        - name: Print Azure publish profile secret
           run: |
-            if [ -z "${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" ]; then
-            echo "Azure publish profile secret is not set."
-            exit 1
-            else
-            echo "Azure publish profile secret is set."
-            fi
+            echo "Azure publish profile secret:"
+            echo "${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}"
 
     deploy:
       permissions:

@@ -1,9 +1,17 @@
 name: build-and-test
+
+env:
+    AZURE_WEBAPP_NAME: parsing-points
+
 on:
     push:
         branches: [fullStack]
     pull_request:
         branches: [main]
+    workflow_dsipatch:
+
+permissions:
+    contents: read
 
 jobs:
     build-and-test:
@@ -49,4 +57,26 @@ jobs:
           run: |
             cd Server
             SPORTS_ODDS_API_KEY=${{ secrets.SPORTS_ODDS_API_KEY }} docker-compose run test
+
+    deploy:
+      permissions:
+        contents: none
+      runs-on: ubuntu-latest
+      needs: build
+      environment:
+        name: 'Development'
+        url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+      steps:
+        - name: Lowercase the repo name and username
+          run: |
+            echo "REPO=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
+        - name: Deploy to Azure Web App
+          id: deploy-to-webapp
+          uses: azure/webapps-deploy@v2
+          with:
+            app-name: ${{ env.AZURE_WEBAPP_NAME }}
+            publish-profile: $ {{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+            images: 'ghcr.io/${{ env.REPO }}/parsing-points-server:latest'
+
 

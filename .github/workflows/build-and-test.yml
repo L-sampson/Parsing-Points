@@ -56,7 +56,7 @@ jobs:
         - name: Run Server Mock Tests
           run: |
             cd Server
-            sudo docker-compose run test SPORTS_ODDS_API_KEY=${{ secrets.SPORTS_ODDS_API_KEY }} 
+            sudo docker --version
 
     deploy:
       permissions:

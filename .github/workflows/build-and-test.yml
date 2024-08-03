@@ -62,10 +62,6 @@ jobs:
           run: |
             echo "PUBLISH_PROFILE=${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" >> "${GITHUB_ENV}"
 
-        - name: Print the publish profile for debugging
-          run: |
-            echo "Publish profile contents:"
-            echo ${{ env.PUBLISH_PROFILE }}
 
     deploy:
       permissions:
@@ -85,7 +81,7 @@ jobs:
           uses: azure/webapps-deploy@v2
           with:
             app-name: ${{ env.AZURE_WEBAPP_NAME }}
-            publish-profile: $ {{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+            publish-profile: $ {{ env.PUBLISH_PROFILE }}
             images: 'ghcr.io/${{ env.REPO }}/parsing-points-server:latest'
 
 

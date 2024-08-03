@@ -65,7 +65,7 @@ jobs:
         - name: Print the publish profile for debugging
           run: |
             echo "Publish profile contents:"
-            echo "$PUBLISH_PROFILE"
+            echo ${{ env.PUBLISH_PROFILE }}
 
     deploy:
       permissions:

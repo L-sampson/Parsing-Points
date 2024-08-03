@@ -60,7 +60,7 @@ jobs:
         
         - name: Set publish profile as environment variable
           run: |
-            echo "PUBLISH_PROFILE=${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" >> $GITHUB_ENV
+            echo "PUBLISH_PROFILE=${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" >> "${{GITHUB_ENV}}"
 
         - name: Print the publish profile for debugging
           run: |

@@ -58,15 +58,14 @@ jobs:
             cd Server
             sudo docker --version
         
-        - name: Print publish profile secret
+        - name: Set publish profile as environment variable
           run: |
-          
-            echo "Full publish profile secret:"
-            echo "${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}"
+            echo "PUBLISH_PROFILE=${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" >> $GITHUB_ENV
 
-            
-            echo "Extracting publishUrl:"
-            echo "${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}" | grep -oP '(?<=publishUrl=")[^"]*'
+        - name: Print the publish profile for debugging
+          run: |
+            echo "Publish profile contents:"
+            echo "$PUBLISH_PROFILE"
 
     deploy:
       permissions:

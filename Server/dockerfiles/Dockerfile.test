@@ -12,6 +12,7 @@ RUN cd build && make server_mock
 FROM builder
 
 COPY --from=builder /usr/src/app/build/tests/server_mock /usr/bin/server_mock
+ARG SPORTS_ODDS_API_KEY
 ENV SPORTS_ODDS_API_KEY=$SPORTS_ODDS_API_KEY
 CMD [ "./build/tests/server_mock" ]
 

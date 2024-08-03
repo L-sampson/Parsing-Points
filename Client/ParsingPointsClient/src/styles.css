@@ -1,8 +1,17 @@
 /* You can add global styles to this file, and also import other style files */
 
+:root {
+    --primary-background: #000000;
+    --primary-text: #ECF0F1;
+    --secondary-accent: #bdc3c7;
+    --primary-alert-color: #1E90FF;
+    --primary-button-color: #7FFFD4;
+    --background-gradient: linear-gradient(0deg, #035948 0%, hsla(160, 100%, 75%, 1) 100%);
+}
+
 html, body { height: 100%; }
 body { 
     margin: 0; 
     font-family: Roboto, "Helvetica Neue", sans-serif; 
-    background-color: #efe7bc;
+    background-color: var(--primary-background);
 }

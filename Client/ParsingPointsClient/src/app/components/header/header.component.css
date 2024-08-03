@@ -1,5 +1,9 @@
 mat-toolbar {
-    background-color: #1D1E2C;
+    background-color: #000000;
+    color: #ECF0F1;
+    border-bottom: 2px solid var(--secondary-accent);
+    padding-bottom: 7px;
+    margin-bottom: 3px;
 }
 
 .header-container {
@@ -7,18 +11,27 @@ mat-toolbar {
     justify-content: space-between;
     width: 100%;
     align-items: center;
+    margin-bottom: 5px;
+    padding-top: 5px;
 }
 
 .title {
-    flex: 1;
-    text-align: left;
-    color: aquamarine;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Galada', sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+    img {
+        width: 70px;
+        background-color: #000000;
+    }
 }
 
 .subtitle {
-    flex: 5;
+    display: flex;
     text-align: center;
-    color: aquamarine;
+    color: var(--primary-text);
 }
 
 .btn {
@@ -27,5 +40,5 @@ mat-toolbar {
 }
 
 .options {
-    background-color:aquamarine;
+    background: var(--background-gradient);
 }

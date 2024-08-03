@@ -14,6 +14,7 @@ FROM builder
 COPY --from=builder /usr/src/app/build/server /usr/bin/server
 
 EXPOSE 8080
+ARG SPORTS_ODDS_API_KEY
 ENV SPORTS_ODDS_API_KEY=$SPORTS_ODDS_API_KEY
 
 CMD ["./build/server"]

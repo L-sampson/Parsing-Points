@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Observable, map, from, mergeMap, reduce } from 'rxjs';
-import { Scores} from '../../interfaces/scores';
+import { ScoresData} from '../../interfaces/scores';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { environment } from '../../../environments/environment';
@@ -16,7 +16,7 @@ import { environment } from '../../../environments/environment';
   styleUrl: './scores-list.component.css'
 })
 export class ScoresListComponent {
-  sportScoreMap = new Map<string, Set<Scores>>([
+  sportScoreMap = new Map<string, Set<ScoresData>>([
     ["nba", new Set()],
     ["wnba", new Set()],
     ["mlb", new Set()],
@@ -35,25 +35,28 @@ export class ScoresListComponent {
     })
   }
 
-  getSportScores(sportParam: string): Observable<Scores[]> {
-    return this.http.get<Scores[]>(`${environment.apiUrl}/scores/${sportParam}`)
+  getSportScores(sportParam: string): Observable<ScoresData[]> {
+    const url = `${environment.apiUrl}/scores/${sportParam}`;
+    console.log('Fetching scores from URL:', url);  // Log the URL to the console
+    return this.http.get<ScoresData[]>(url);
   }
+  
 
-  iterSportsMap(sportsMap: Map<string, Set<Scores>>): Observable<Map<string, Set<Scores>>> {
+  iterSportsMap(sportsMap: Map<string, Set<ScoresData>>): Observable<Map<string, Set<ScoresData>>> {
     return from(sportsMap.entries())
       .pipe(
-        mergeMap(([sport, scores]) =>
+        mergeMap(([sport, event]) =>
           this.getSportScores(sport).pipe(
             map(games => {
               games.forEach(game => {
-                const gameSummary: Scores = {
+                const gameSummary: ScoresData = {
                   home_team: game.home_team,
                   away_team: game.away_team,
                   commence_time: game.commence_time,
                   completed: game.completed,
-                  scoreboard: game.scoreboard
+                  scores: game.scores
                 }
-                scores.add(gameSummary)
+                event.add(gameSummary)
               });
               return sportsMap;
             })

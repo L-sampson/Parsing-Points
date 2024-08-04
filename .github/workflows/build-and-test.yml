@@ -57,6 +57,14 @@ jobs:
             push: true
             tags: docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/server-test:latest
             build-args: SPORTS_ODDS_API_KEY=${{ secrets.SPORTS_ODDS_API_KEY }}
+        
+        - name: Build and push Angular client
+          uses: docker/build-push-action@v4
+          with:
+            context: ./Client/ParsingPointsClient
+            file: ./Client/ParsingPointsClient/Dockerfile
+            push: true
+            tags: docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/client:latest
 
         - name: Install Docker Compose
           run: |
@@ -65,6 +73,5 @@ jobs:
         
         - name: Run Server Mock Tests
           run: |
-            cd Server
             docker-compose run -e SPORTS_ODDS_API_KEY=${{ secrets.SPORTS_ODDS_API_KEY }} test
         

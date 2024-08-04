@@ -1,16 +1,16 @@
-export interface Scores {
+export interface ScoresData {
     away_team: string
     commence_time: string
     completed: boolean,
     home_team: string
     // id: string
     // last_update: string
-    scoreboard?: ScoreBoard []
+    scores?: Score []
     // sport_key: string
     // sport_title: string
 }
 
-export interface ScoreBoard {
+export interface Score {
     name: string
     score: string
 }

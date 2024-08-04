@@ -1,0 +1,30 @@
+version: '3.9'
+services:
+  server:
+    build: 
+      context: ./Server
+      dockerfile: dockerfiles/Dockerfile.api
+    ports:
+      - "8080:8080"
+    environment:
+      - SPORTS_ODDS_API_KEY=${SPORTS_ODDS_API_KEY}
+
+  test:
+    build:
+      context: ./Server
+      dockerfile: dockerfiles/Dockerfile.test
+    environment:
+      - SPORTS_ODDS_API_KEY=${SPORTS_ODDS_API_KEY}
+
+  client:
+    build:
+      context: ./Client/ParsingPointsClient
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+    depends_on:
+      - server
+    environment:
+      - API_URL=http://server:8080
+
+

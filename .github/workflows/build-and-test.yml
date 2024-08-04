@@ -48,6 +48,8 @@ jobs:
             push: true
             tags: docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/parsing-points-server:latest
             build-args: SPORTS_ODDS_API_KEY=${{ secrets.SPORTS_ODDS_API_KEY }}
+            cache-from: type=registry,ref=docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/parsing-points-server:cache
+            cache-to: type=registry,ref=docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/parsing-points-server:cache,mode=max
 
         - name: Build and push server test
           uses: docker/build-push-action@v4
@@ -57,7 +59,9 @@ jobs:
             push: true
             tags: docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/server-test:latest
             build-args: SPORTS_ODDS_API_KEY=${{ secrets.SPORTS_ODDS_API_KEY }}
-        
+            cache-from: type=registry,ref=docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/server-test:cache
+            cache-to: type=registry,ref=docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/server-test:cache,mode=max
+
         - name: Build and push Angular client
           uses: docker/build-push-action@v4
           with:
@@ -65,11 +69,23 @@ jobs:
             file: ./Client/ParsingPointsClient/Dockerfile
             push: true
             tags: docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/client:latest
+            cache-from: type=registry,ref=docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/client:cache
+            cache-to: type=registry,ref=docker.io/${{ secrets.DOCKER_HUB_USERNAME }}/client:cache,mode=max
+
+        - name: Cache Docker Compose
+          uses: actions/cache@v3
+          with:
+            path: /usr/local/bin/docker-compose
+            key: ${{ runner.os }}-docker-compose-${{ hashFiles('**/docker-compose.yml') }}
+            restore-keys: |
+              ${{ runner.os }}-docker-compose-
 
         - name: Install Docker Compose
           run: |
-            sudo apt-get update
-            sudo apt-get install -y docker-compose
+            if ! command -v docker-compose &> /dev/null; then
+              sudo apt-get update
+              sudo apt-get install -y docker-compose
+            fi
         
         - name: Run Server Mock Tests
           run: |

@@ -71,11 +71,9 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y docker-compose
         
-        - name: Print environment variables
-          run: |
-            echo "SPORTS_ODDS_API_KEY=${{ secrets.SPORTS_ODDS_API_KEY }}"
-        
         - name: Run Server Mock Tests
           run: |
+            echo "SPORTS_ODDS_API_KEY=${{ secrets.SPORTS_ODDS_API_KEY }}"
             docker-compose run -e SPORTS_ODDS_API_KEY=${{ secrets.SPORTS_ODDS_API_KEY }} test
+
         

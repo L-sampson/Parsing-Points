@@ -2,7 +2,7 @@ version: '3.9'
 services:
   server:
     build: 
-      context: /Server
+      context: ./Server
       dockerfile: dockerfiles/Dockerfile.api
     ports:
       - "8080:8080"
@@ -11,14 +11,14 @@ services:
 
   test:
     build:
-      context: /Server
+      context: ./Server
       dockerfile: dockerfiles/Dockerfile.test
     environment:
       - SPORTS_ODDS_API_KEY=${SPORTS_ODDS_API_KEY}
 
   client:
     build:
-      context: /Client/ParsingPointsClient
+      context: ./Client/ParsingPointsClient
       dockerfile: Dockerfile
     ports:
       - "4200:4200"

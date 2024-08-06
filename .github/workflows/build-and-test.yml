@@ -32,7 +32,14 @@ jobs:
             username: ${{ secrets.AZURE_REGISTRY_NAME }}
             password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
 
-        
+        - name: Cache Docker layers
+          uses: actions/cache@v4
+          with:
+            path: /tmp/.buildx-cache
+            key: ${{ runner.os }}-buildx-${{ github.sha }}
+            restore-keys: |
+              ${{ runner.os }}-buildx-
+
         - name: Build and push server image
           uses: docker/build-push-action@v6
           with:
@@ -41,8 +48,8 @@ jobs:
             push: true
             tags: parsingpoints.azurecr.io/parsing-points-server:latest
             build-args: SPORTS_ODDS_API_KEY=${{ secrets.SPORTS_ODDS_API_KEY }}
-            cache-from: type=registry,ref=parsingpoints.azurecr.io/parsing-points-server:cache
-            cache-to: type=registry,ref=parsingpoints.azurecr.io/parsing-points-server:cache,mode=max
+            cache-from: type=gha
+            cache-to: type=gha,mode=max
 
         - name: Build and push server test
           uses: docker/build-push-action@v6
@@ -52,8 +59,8 @@ jobs:
             push: true
             tags: parsingpoints.azurecr.io/server-test:latest
             build-args: SPORTS_ODDS_API_KEY=${{ secrets.SPORTS_ODDS_API_KEY }}
-            cache-from: type=registry,ref=parsingpoints.azurecr.io/server-test:cache
-            cache-to: type=registry,ref=parsingpoints.azurecr.io/server-test:cache,mode=max
+            cache-from: type=gha
+            cache-to: type=gha,mode=max
             
         - name: Build and push Angular client
           uses: docker/build-push-action@v6
@@ -62,8 +69,8 @@ jobs:
             file: ./Client/ParsingPointsClient/Dockerfile
             push: true
             tags: parsingpoints.azurecr.io/client:latest
-            cache-from: type=registry,ref=parsingpoints.azurecr.io/client:cache
-            cache-to: type=registry,ref=parsingpoints.azurecr.io/client:cache,mode=max
+            cache-from: type=gha
+            cache-to: type=gha,mode=max
 
         - name: Cache Docker Compose
           uses: actions/cache@v4

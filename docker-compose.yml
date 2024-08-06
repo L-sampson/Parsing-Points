@@ -21,10 +21,8 @@ services:
       context: ./Client/ParsingPointsClient
       dockerfile: Dockerfile
     ports:
-      - "4200:4200"
-    depends_on:
-      - server
+      - "80:80"
     environment:
-      - API_URL=http://server:8080
+      - API_URL=https://parsing-server-e2gdd0g5bycahwgd.eastus-01.azurewebsites.net
 
 

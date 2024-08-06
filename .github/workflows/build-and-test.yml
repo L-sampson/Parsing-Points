@@ -45,6 +45,7 @@ jobs:
         - name: Build and push server image
           uses: docker/build-push-action@v6
           with:
+            driver: docker-container
             context: ./Server/
             file: ./Server/dockerfiles/Dockerfile.api
             push: true

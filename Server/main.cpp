@@ -9,7 +9,7 @@ int main()
 {
     crow::SimpleApp app;
     
-    CROW_ROUTE(app, "/sports")
+    CROW_ROUTE(app, "/api/sports")
     .methods("GET"_method)([](const crow::request& req, crow::response& res){
         
         OptionURL bet_option;
@@ -27,12 +27,16 @@ int main()
         CROW_LOG_INFO << "Succeded the request.";
         res.set_header("Content-Type", "text/plain");
         res.set_header("Access-Control-Allow-Origin", "http://localhost:4200");
+        res.set_header("Access-Control-Allow-Origin", "http://localhost:80");
+        res.set_header("Access-Control-Allow-Origin", "http://localhost");
+        res.set_header("Access-Control-Allow-Origin", "https://parsing-server-e2gdd0g5bycahwgd.eastus-01.azurewebsites.net/api");
+        res.set_header("Access-Control-Allow-Origin", "*");
         res.write(sports);
         res.end();
 
     });
 
-  CROW_ROUTE(app, "/scores/<string>")
+  CROW_ROUTE(app, "/api/scores/<string>")
   .methods(crow::HTTPMethod::GET)
   ([](const crow::request& req, crow::response& res, const std::string& param){
     OptionURL sport_option;
@@ -49,6 +53,9 @@ int main()
     std::string scores = sport_scores.dump(4);
     res.set_header("Content-Type", "text/plain");
     res.set_header("Access-Control-Allow-Origin", "http://localhost:4200");
+    res.set_header("Access-Control-Allow-Origin", "http://localhost:80");
+    res.set_header("Access-Control-Allow-Origin", "http://localhost");
+    res.set_header("Access-Control-Allow-Origin", "*");
     res.write(scores);
     res.end();
   });

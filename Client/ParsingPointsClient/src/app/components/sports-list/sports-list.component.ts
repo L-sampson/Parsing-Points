@@ -19,7 +19,8 @@ export class SportsListComponent {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.http.get<any>(`${environment.apiUrl}/sports`)
+    console.log("apiurl", (`${environment.API_URL}/sports`));
+    this.http.get<any>(`${environment.API_URL}/sports`)
     .subscribe(sports => {
       this.sports = sports;
       sports.forEach((sport: any) => {

@@ -36,7 +36,7 @@ export class ScoresListComponent {
   }
 
   getSportScores(sportParam: string): Observable<ScoresData[]> {
-    const url = `${environment.apiUrl}/scores/${sportParam}`;
+    const url = `${environment.API_URL}/scores/${sportParam}`;
     console.log('Fetching scores from URL:', url);  // Log the URL to the console
     return this.http.get<ScoresData[]>(url);
   }

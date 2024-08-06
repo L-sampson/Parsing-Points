@@ -1,15 +1,23 @@
-FROM node:alpine
+FROM node:alpine AS build
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 COPY package*.json ./
-
-COPY . .
 
 RUN npm install -g @angular/cli
 
 RUN npm install
 
-EXPOSE 4200
+COPY . .
 
-CMD ["ng", "serve", "--host", "0.0.0.0"]
+RUN npm run build
+
+# Build Stage
+FROM nginx:alpine
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY --from=build /app/dist/parsing-points-client/ /usr/share/nginx/html 
+
+EXPOSE 80
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]

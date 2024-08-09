@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include <unordered_set>
 #include "option_url.hpp"
 #define base_url "https://api.the-odds-api.com/v4/sports/"
 
@@ -19,9 +20,51 @@ std::string getApiKey() {
     }
 }
 
+std::string createBaseUrlParams(const std::string& sport_req, const std::string event_type) {
+    map<string, string> sports = {
+        {"nba", "basketball_nba"},
+        {"wnba","basketball_wnba"},
+        {"nccab", "basketball_ncaab"},
+        {"nfl", "americanfootball_nfl"},
+        {"nccaf", "americanfootball_ncaaf"},
+        {"mlb", "baseball_mlb"},
+        {"nhl", "icehockey_nhl"},
+        {"boxing", "boxing_boxing"},
+        {"mma", "mma_mixed_martial_arts"},
+        {"mls", "soccer_usa_mls"}, 
+        {"nrl", "rugbyleague_nrl"}
+        };
+
+        
+    std::string endpoint_base;
+    if(sports.find(sport_req) != sports.end()) {
+        endpoint_base += sports[sport_req];
+    } else {
+        std::cerr << "Error finding sport";
+        return "";
+    }
+
+    std::string event_param_base;
+    if(event_type == "odds") {
+        event_param_base = "/odds/?apiKey=";
+    } else if(event_type == "scores") {
+        event_param_base = "/scores/?apiKey=";
+    } else if(event_type =="event_odds") {
+        event_param_base = "/events/{eventId}/odds?apiKey=";
+    } else {
+        std::cerr << "Invalid input\n";
+        return "";
+    }
+
+    std::string apiKey = getApiKey();
+    endpoint_base += event_param_base + apiKey;
+    return endpoint_base;
+    
+}
+
 std::string OptionURL::getOptionUrl(const std::string& option)
 {
-map<string, string> scores = {
+    map<string, string> scores = {
         {"NBA", "basketball_nba"},
         {"College Basketball", "basketball_ncaab"},
         {"NFL", "americanfootball_nfl"},
@@ -118,32 +161,48 @@ map<string, string> scores = {
     return option_url;
 }
 
-std::string OptionURL::getSportsWithParamURL(const std::string& param) {
+std::string OptionURL::getSportsWithParamURL(const std::string& sport) {
     option_url = base_url;
-    map<string, string> sports = {
-        {"nba", "basketball_nba"},
-        {"wnba","basketball_wnba"},
-        {"nccab", "basketball_ncaab"},
-        {"nfl", "americanfootball_nfl"},
-        {"nccaf", "americanfootball_ncaaf"},
-        {"mlb", "baseball_mlb"},
-        {"nhl", "icehockey_nhl"},
-        {"boxing", "boxing_boxing"},
-        {"mma", "mma_mixed_martial_arts"},
-        {"mls", "soccer_usa_mls"}, 
-        {"nrl", "rugbyleague_nrl"}
-        };
+    std::string event_type = "scores";
+    std::string score_params = createBaseUrlParams(sport, event_type);
+    std::string terminator = "\0";
+    option_url += score_params + terminator;
+    return option_url;
+}
 
-        std::string sport_score;
-        
-        if(sports.find(param) != sports.end()) {
-            std::string terminator = "\0";
-            std::string apiKey = getApiKey();
-            sport_score = sports[param];
-            option_url += sport_score + "/scores/?apiKey=" + apiKey + terminator;
-            return option_url;
+std::string OptionURL::getEventOddsURL(const std::string& sport,const std::string& region, const std::string& market, const std::string eventId) {
+    option_url = base_url;
+    std::string event_type = "odds";
+    std::string odd_params = createBaseUrlParams(sport, event_type);
+    std::cout << "Odd param: " << odd_params;  
+
+    // Find the region of the event odds
+    std::unordered_set<std::string> regions = {"us","us2","uk","eu","au"};
+    std::string regionParam = "&regions=";
+        if(regions.find(region) != regions.end()) {
+            regionParam.append(region);
         } else {
-            std::cerr << "Could not find sport\n";
+            std::cerr << "Could find region parameter\n";
         }
-        return "";
+
+    // Find the markets of the event odds
+    std::string marketParam = "&markets=";
+    std::unordered_set<std::string> markets = {"h2h","spreads", "totals" "outrights"};
+         if(markets.find(market) != markets.end()) {
+            marketParam.append(market);
+            } else {
+                std::cerr << "Could not find market parameter\n";
+            }
+    
+
+    const std::string oddsFormatParam = "&oddsFormat=american";
+    std::string eventIdParam = "&eventIds=";
+    eventIdParam.append(eventId);
+
+    odd_params += regionParam + marketParam + oddsFormatParam +eventIdParam;
+    option_url.append(odd_params);
+    string terminator = "\0";
+    option_url.append(terminator);
+    std::cout << "Final URL: " << option_url << std::endl;
+    return option_url;
 }

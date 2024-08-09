@@ -11,6 +11,7 @@ class OptionURL {
     public:
         std::string getOptionUrl(const std::string& option);
         std::string getSportsWithParamURL(const std::string& param);
+        std::string getEventOddsURL(const std::string& sport,const std::string& region, const std::string& market, const std::string eventId);
 };
 
 #endif 

@@ -8,6 +8,10 @@
 int main()
 {
     crow::SimpleApp app;
+
+    CROW_ROUTE(app, "/")([](){
+        return "Hello world";
+    });
     
     CROW_ROUTE(app, "/api/sports")
     .methods("GET"_method)([](const crow::request& req, crow::response& res){
@@ -42,7 +46,7 @@ int main()
     OptionURL sport_option;
     std::string url = sport_option.getSportsWithParamURL(param);
 
-    if(!url.empty()) {
+        if(!url.empty()) {
             CROW_LOG_INFO << "Found URL: " << url;
         } else {
             CROW_LOG_ERROR << "Could not find proper url.";
@@ -57,6 +61,29 @@ int main()
     res.set_header("Access-Control-Allow-Origin", "http://localhost");
     res.set_header("Access-Control-Allow-Origin", "*");
     res.write(scores);
+    res.end();
+  });
+
+  CROW_ROUTE(app, "/api/odds/<string>/<string>/<string>/<string>")
+  .methods(crow::HTTPMethod::GET)
+  ([](const crow::request& req,crow::response& res,
+  const std::string& sport,
+  const std::string& region,
+  const std::string& market,
+  const std::string eventId){
+    OptionURL event_odds_option;
+    std::string url = event_odds_option.getEventOddsURL(sport,region, market, eventId);
+    
+    if(!url.empty()) {
+            CROW_LOG_INFO << "Found URL: " << url;
+        } else {
+            CROW_LOG_ERROR << "Could not find proper url.";
+        }
+    const char* event_odds_url = url.c_str();
+    json event_odds = getEventOdds(event_odds_url);
+    std::string odds = event_odds.dump(4);
+    res.set_header("Content-Type", "text/plain");
+    res.write(odds);
     res.end();
   });
 

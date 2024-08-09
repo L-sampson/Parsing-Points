@@ -1,0 +1,62 @@
+<mat-card>
+    <mat-card-header>
+        <mat-card-title>
+            Live
+        </mat-card-title>
+        <div class="match-image">
+            <img [src]="match.home_team_logo" alt="MLB Logo">
+            {{ leagueName | uppercase }}
+        </div>
+        <div class="match-btns">
+            <button mat-flat-button>
+                <mat-icon>grade</mat-icon>
+            </button>
+            <button mat-button>
+                <mat-icon>
+                    notification_add
+                </mat-icon>
+            </button>
+        </div>
+    </mat-card-header>
+
+    <mat-card-content>
+        <div class="column">
+            <div class="team team--home">
+                <div class="team-logo">
+                    <img [src]="match.home_team_logo" alt="Home team logo">
+                </div>
+                <div class="team-name">{{match.home_team }}</div>
+            </div> 
+        </div>
+
+        <div class="column">
+            <div class="match-details">
+                <div class="match-date">{{match.commence_time | date: 'medium'}}</div>
+                <div class="match-score">
+                    <span class="match-score-number home"><h2>{{match.scores?.[0]?.score ?? 0 }}</h2></span>
+                    <span class="match-score-number divider"><h2>:</h2></span>
+                    <span class="match-score-number away"><h2>{{match.scores?.[1]?.score ?? 0 }}</h2></span>
+                </div>
+                <div class="bet-options">
+                    <button class="place-bet" mat-button>Place Bet</button>
+                    <button class="bet" mat-button>Home
+                        <span class="home-team bet">1.48</span>
+                    </button>
+                    <button class="bet" mat-button>Tie
+                        <span class="home-team bet">1.48</span>
+                    </button>
+                    <button class="bet" mat-button>Away <span class="home-team bet">1.48</span></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="column">
+            <div class="team team--home">
+                <div class="team-logo">
+                    <img [src]="match.away_team_logo" [alt]="match.away_team">
+                </div>
+                <div class="team-name">{{match.away_team }}</div>
+            </div> 
+        </div>
+    </mat-card-content>
+</mat-card>

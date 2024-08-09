@@ -1,8 +1,10 @@
 export interface ScoresData {
     away_team: string
+    away_team_logo: string
     commence_time: string
-    completed: boolean,
+    completed: boolean
     home_team: string
+    home_team_logo: string
     // id: string
     // last_update: string
     scores?: Score []

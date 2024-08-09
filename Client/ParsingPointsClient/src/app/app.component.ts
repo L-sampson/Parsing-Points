@@ -20,13 +20,5 @@ export class AppComponent {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-  //   this.http.get<any>('http://0.0.0.0:8080/scores/nba')
-  //   .subscribe(data => {
-  //   this.data = data;
-  //   data.forEach((element: any) => {
-  //   console.log(element);
-  //   console.log("Title: ", element.title)
-  //      });
-  //    })
   }
 }

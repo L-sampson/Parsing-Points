@@ -62,7 +62,7 @@ jobs:
             context: ./Client/ParsingPointsClient
             file: ./Client/ParsingPointsClient/Dockerfile
             push: true
-            tags: parsingpoints.azurecr.io/client:latest
+            tags: parsingpoints.azurecr.io/parsing-points-server:latest
             
 
         - name: Cache Docker Compose

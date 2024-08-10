@@ -5,6 +5,7 @@ export interface ScoresData {
     completed: boolean
     home_team: string
     home_team_logo: string
+    league_logo: string
     // id: string
     // last_update: string
     scores?: Score []

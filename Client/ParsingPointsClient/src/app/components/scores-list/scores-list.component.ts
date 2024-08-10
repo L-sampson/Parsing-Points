@@ -25,9 +25,13 @@ import { MatIcon } from '@angular/material/icon';
 export class ScoresListComponent {
   sportScoreMap = new Map<string, Set<ScoresData>>([
     ["mlb", new Set()],
+    ["nba", new Set()],
+    ["wnba", new Set()],
+    ["mls", new Set()],
+    ["nhl", new Set()]
   ]);
 
-   sportsLeagueMap = new Map<string, string>(
+  leagueLogoMap = new Map<string, string>(
     [
       ["mlb", ''],
       ['nba', ''],
@@ -41,16 +45,15 @@ export class ScoresListComponent {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.getSportMatchData();
     this.fetchLeagueLogos();
   }
 
   fetchLeagueLogos() {
-    this.sportsLeagueMap.forEach((_, league)=>{
+    this.sportScoreMap.forEach((_, league)=>{
       this.http.get<any>(`https://www.thesportsdb.com/api/v2/json/3/search/league/${league}`)
       .pipe(map(data => data.leagues[0].strBadge))
       .subscribe(logo => {
-        this.sportsLeagueMap.set(league, logo)
+        this.leagueLogoMap.set(league, logo)
       })
     })
   }
@@ -78,25 +81,47 @@ export class ScoresListComponent {
     );
   }
 
-  getSportMatchData(): void {  
-    this.sportScoreMap.forEach((_, sport) => {
-      this.getSportScores(sport).subscribe(matches => {
+  selectedLeague: string  | null = null;
+
+  showLeagueScores(leagueName: string): void {
+    if(this.sportScoreMap.has(leagueName)) {
+      console.log("found league name: ", leagueName)
+       this.selectedLeague = leagueName;
+       this.getSportMatchData();
+    } else {
+      console.log("could not find league");
+    }
+  }
+
+  isPanelVisible(leaguePanel: string): boolean {
+    return this.selectedLeague === leaguePanel;
+  }
+
+
+  getSportMatchData(): void {
+    if(this.selectedLeague) {
+      console.log("scores from league" ,this.selectedLeague)
+      this.getSportScores(this.selectedLeague!).subscribe(matches =>{
+        const sportSet = this.sportScoreMap.get(this.selectedLeague!) || new Set<ScoresData>();
+        const leagueLogo = this.leagueLogoMap.get(this.selectedLeague!) || '';
         matches.forEach((game: ScoresData) => {
           console.log(`Home Team: ${game.home_team}`);
           console.log(`Away Team: ${game.away_team}`);
-          const sportSet = this.sportScoreMap.get(sport) || new Set<ScoresData>();
-          sportSet.add(game);
-          this.sportScoreMap.set(sport, sportSet);
-          console.log(this.sportScoreMap)
+          game.league_logo = leagueLogo;
+          sportSet?.add(game);
+          this.sportScoreMap.set(this.selectedLeague!, sportSet);
           this.fetchTeamLogo(game.home_team).subscribe(logo => {
             game.home_team_logo = logo;
           })
           this.fetchTeamLogo(game.away_team).subscribe(logo => {
             game.away_team_logo = logo;
           })
-        });
-      });
-    });
+        })
+      })
+    } else {
+      console.log("error");
+    }
+   
   }
-  
+
 }

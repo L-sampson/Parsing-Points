@@ -1,40 +1,48 @@
 <mat-drawer-container class="expansion-panel-container" autosize>
-    <mat-drawer #drawer class="sidenav" mode="side">
-        <h2>Leagues</h2>
-       <div class="league-btns" *ngFor="let league of sportsLeagueMap | keyvalue">
-        <button mat-button>
-            <img [src]="league.value" [alt]="league.key" >
-            {{league.key | uppercase}}</button>
-       </div>
-    </mat-drawer>
-    <div class="sidenav-content">
-        <button type="button" mat-button (click)="drawer.toggle()">
-            <mat-icon>{{drawer.opened ? 'chevron_left' : 'chevron_right'}}</mat-icon>
-        </button>
-        <div class="score-panels" *ngFor="let sport of sportScoreMap | keyvalue">
-            <mat-expansion-panel >
-                <mat-expansion-panel-header>
-                    <mat-panel-title>
-                        <img src="https://logodownload.org/wp-content/uploads/2020/07/mlb-logo-0.png">
-                        <h2>{{sport.key | uppercase}}</h2>
-                    </mat-panel-title>
-                </mat-expansion-panel-header>
-                <div class="expansion-content" *ngFor="let game of sport.value">
-                    <app-scoreboard [leagueName]='sport.key' [match]="game"></app-scoreboard>
-                    <br>
-                </div>
-            </mat-expansion-panel>
-            <br>
-            </div>
-        <div class="news-panel">
-            <mat-expansion-panel>
-                <mat-expansion-panel-header>
-                    <mat-panel-title><h2>Latest Sports News</h2></mat-panel-title>
-                </mat-expansion-panel-header>
-            </mat-expansion-panel>
-        </div>
-        
+  <mat-drawer #drawer class="sidenav" mode="side">
+    <h2>Leagues</h2>
+    <div class="league-btns" *ngFor="let league of leagueLogoMap | keyvalue">
+      <button mat-button (click)="showLeagueScores(league.key)">
+        <img [src]="league.value" [alt]="league.key" />
+        {{ league.key | uppercase }}
+      </button>
     </div>
-
-
+  </mat-drawer>
+  <div class="sidenav-content">
+    <div class="column-btn">
+      <button type="button" mat-button (click)="drawer.toggle()">
+        <mat-icon>{{
+          drawer.opened ? "chevron_left" : "chevron_right"
+        }}</mat-icon>
+      </button>
+    </div>
+    <div class="column">
+      <div *ngIf="selectedLeague === null">
+        <h1>Select a league to view scores</h1>
+      </div>
+      <div class="score-panels" *ngIf="selectedLeague !== null">
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+                <img *ngIf="leagueLogoMap.has(selectedLeague)" [src]="leagueLogoMap.get(selectedLeague)" alt="League Logo" />
+              <h2>{{ selectedLeague | uppercase }}</h2>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="expansion-content" *ngFor="let game of sportScoreMap.get(selectedLeague)">
+                        <app-scoreboard [leagueName]='selectedLeague' [match]="game"></app-scoreboard>
+                        <br>
+                    </div>
+        </mat-expansion-panel>
+      </div>
+    </div>
+    <div class="column-news">
+      <div class="news-panel">
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title><h2>Latest Sports News</h2></mat-panel-title>
+          </mat-expansion-panel-header>
+        </mat-expansion-panel>
+      </div>
+    </div>
+  </div>
 </mat-drawer-container>

@@ -9,11 +9,16 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { environment } from '../../../environments/environment';
 import { ScoreboardComponent } from '../scoreboard/scoreboard.component';
+import {MatSidenavModule} from '@angular/material/sidenav';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-scores-list',
   standalone: true,
-  imports: [MatExpansionModule, CommonModule, HttpClientModule, MatCardModule, MatButtonModule, ScoreboardComponent],
+  imports: [
+    MatExpansionModule, CommonModule, HttpClientModule, 
+    MatCardModule, MatButtonModule, ScoreboardComponent, 
+    MatSidenavModule, MatIcon],
   templateUrl: './scores-list.component.html',
   styleUrls: ['./scores-list.component.css']
 })
@@ -22,12 +27,32 @@ export class ScoresListComponent {
     ["mlb", new Set()],
   ]);
 
+   sportsLeagueMap = new Map<string, string>(
+    [
+      ["mlb", ''],
+      ['nba', ''],
+      ['wnba', ''],
+      ['mls', ''], 
+      ['nhl', '']
+    ]);
+
   private logoCache = new Map<string, {logo: string, timestamp: number}>;
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
     this.getSportMatchData();
+    this.fetchLeagueLogos();
+  }
+
+  fetchLeagueLogos() {
+    this.sportsLeagueMap.forEach((_, league)=>{
+      this.http.get<any>(`https://www.thesportsdb.com/api/v2/json/3/search/league/${league}`)
+      .pipe(map(data => data.leagues[0].strBadge))
+      .subscribe(logo => {
+        this.sportsLeagueMap.set(league, logo)
+      })
+    })
   }
 
   getSportScores(sportParam: string): Observable<ScoresData[]> {

@@ -2,11 +2,11 @@
 // #include "get_bet.hpp"
 
 // GET sports methods
-json getSports(const char *sports_url)
+json getSports(const char *sports_url, const std::vector<std::string>& headersList)
 {
     string response;
     CurlRequest sportRequest;
-    CURLcode res = sportRequest.httpRequest(sports_url, response);
+    CURLcode res = sportRequest.httpRequest(sports_url, response, headersList);
     if (res == CURLE_OK)
     {
         
@@ -35,82 +35,19 @@ json getSports(const char *sports_url)
             }
             cout << status << endl;
             cout << endl;
-            
-            // insertLeagueData(sports, active, status);
-            
         }
         return league_data;
     }
-    // refreshDB("leagues");
     return {};
 }
 
 // GET Odds Endpoint
 //Add sports Title.
-void getOdds(string url)
+json getEventOdds(const char* event_odds_url, const std::vector<std::string>& headersList)
 {
-    cout << "\nWhat country would you like to search odds for?\n";
-    cout << "Enter one of the following options:\n";
-    map<string, string> regions = {
-        {"United States", "us"},
-        {"United Kingdom", "uk"},
-        {"Europen Union", "eu"},
-        {"Australia", "au"}};
-    cout << "\nCountries : Market\n";
-    for (auto itr = regions.begin(); itr != regions.end(); itr++)
-    {
-        cout << itr->first << endl;
-    }
-    string region;
-    string newReigon;
-    getline(cin, region);
-
-    if (regions.find(region) != regions.end())
-    {
-        newReigon = "&regions=";
-        string choice = regions.find(region)->second;
-        newReigon.append(choice);
-    }
-    else
-    {
-        cout << "Could not find market\n";
-    }
-
-    map<string, string> markets = {
-        {"Money Line", "h2h"},
-        {"Points", "spreads"},
-        {"Over/Under", "totals"},
-        {"Futures", "outrights"}};
-
-    cout << "\nWhat betting options would you like to bet on?\n";
-    for (auto itr = markets.begin(); itr != markets.end(); itr++)
-    {
-        cout << itr->first << endl;
-    }
-
-    string market;
-    string newMarket;
-    getline(cin, market);
-
-    if (markets.find(market) != markets.end())
-    {
-        newMarket = "&markets=";
-        string choice = markets.find(market)->second;
-        newMarket.append(choice);
-    }
-    else
-    {
-        cout << "Could not find market\n";
-    }
-    string end = newReigon.append(newMarket);
-    url.append(end);
-    string terminator = "\0";
-    url.append(terminator);
-    // converting into char*
-    const char *odds = url.c_str();
     string response;
     CurlRequest oddsRequest;
-    CURLcode res = oddsRequest.httpRequest(odds, response);
+    CURLcode res = oddsRequest.httpRequest(event_odds_url, response, headersList);
     if (res == CURLE_OK)
     {
         map<string, string> game_odds;
@@ -162,34 +99,18 @@ void getOdds(string url)
             cout << favorite << " : " << favoritePrice << endl;
             cout << underdog << " : " << underdogPrice << endl;
             cout << "\n";
-            // insertOdds(game_odds, book,favorite,underdog,draw,favoritePrice,underdogPrice);
         }
-        bool bet_games;
-            string bet_option;
-            cout<<"Would you like to bet on a game?\nEnter Yes or No:\n";
-            getline(cin, bet_option);
-            for(char s : bet_option){
-                s = tolower(s);
-            }
-            if(bet_option == "yes"){
-                bet_games;
-                cout<<"Great let's place some bets!!!\n";
-                // userBet();
-            }
-            else{
-                !bet_games;
-                cout<<"Thank you for searching all the latest odds on Parsing *Points\n";
-            }
+        return odds_data;
     }
-    // refreshDB("odds");
+    return {};
 }
 
 // GET Scores
-json getScores(const char *scores_url)
+json getScores(const char *scores_url, const std::vector<std::string>& headersList)
 {
     string response;
     CurlRequest scoresRequest;
-    CURLcode res = scoresRequest.httpRequest(scores_url, response);
+    CURLcode res = scoresRequest.httpRequest(scores_url, response, headersList);
     if (res == CURLE_OK)
     {
         // Create a Map that links the scores and teams.

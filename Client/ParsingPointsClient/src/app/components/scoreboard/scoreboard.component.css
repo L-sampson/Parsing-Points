@@ -2,8 +2,8 @@ mat-card {
     display: flex;
     flex-direction: column;
     border-radius: 10px;
-    background-color: #2228318e;
-    color: #7FFFD4;
+    background-color: #1D1E2C;
+    color: #efe7bc;
 }
 
 mat-card-header {
@@ -68,4 +68,7 @@ mat-card-content {
 .bet-options {
     display:flex;
     margin-top: 10px;
+    button {
+        color: #efe7bc
+    }
 }

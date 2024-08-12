@@ -3,6 +3,7 @@ import { MatCardModule } from '@angular/material/card'
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
+import { ScoresData } from '../../interfaces/scores';
 
 @Component({
   selector: 'app-scoreboard',
@@ -12,7 +13,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './scoreboard.component.css'
 })
 export class ScoreboardComponent {
-  @Input() match: any;
+  @Input() match: ScoresData | undefined;
   @Input() leagueName = '';
 
   ngOnInit() {

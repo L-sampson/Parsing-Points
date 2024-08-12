@@ -2,9 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { map, tap, timestamp } from 'rxjs/operators';
+import { forkJoin, Observable, of } from 'rxjs';
+import { map, switchMap, tap, timestamp } from 'rxjs/operators';
 import { ScoresData } from '../../interfaces/scores';
+import { EventOdds } from '../../interfaces/odds';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { environment } from '../../../environments/environment';
@@ -58,8 +59,14 @@ export class ScoresListComponent {
     })
   }
 
+  fetchEventOdds(sportParam: string): Observable<EventOdds[]> {
+    const url = `${environment.API_URL}/odds?sport=${sportParam}&market=h2h&region=us`;
+    console.log('Fetching scores from URL:', url);
+    return this.http.get<EventOdds[]>(url);
+  }
+
   getSportScores(sportParam: string): Observable<ScoresData[]> {
-    const url = `${environment.API_URL}/scores/${sportParam}`;
+    const url = `${environment.API_URL}/scores?sport=${sportParam}`;
     console.log('Fetching scores from URL:', url);
     return this.http.get<ScoresData[]>(url);
   }
@@ -83,45 +90,84 @@ export class ScoresListComponent {
 
   selectedLeague: string  | null = null;
 
+  combineScoresWithOdds(scores: ScoresData[], odds: EventOdds[]) : ScoresData [] {
+    const oddsMap = new Map<string, EventOdds>();
+    odds.forEach(odd => oddsMap.set(odd.id, odd));
+
+    return scores.map(score => {
+      const matchOdds = oddsMap.get(score.id);
+      if(matchOdds) {
+        score.eventOdds = {
+          id: matchOdds.id,
+          home_team: matchOdds.home_team,
+          away_team: matchOdds.away_team,
+          commence_time: matchOdds.commence_time,
+          bookmakers: matchOdds.bookmakers.length > 0 ? [matchOdds.bookmakers[0]] : []
+        }
+      }
+      return score;
+    });
+  }
+
   showLeagueScores(leagueName: string): void {
-    if(this.sportScoreMap.has(leagueName)) {
-      console.log("found league name: ", leagueName)
-       this.selectedLeague = leagueName;
-       this.getSportMatchData();
+    if (this.sportScoreMap.has(leagueName)) {
+      console.log("Found league name: ", leagueName);
+      this.selectedLeague = leagueName;
+  
+      forkJoin({
+        odds: this.fetchEventOdds(leagueName),
+        scores: this.getSportMatchData()
+      }).pipe(
+        map(({ odds, scores }) => {
+          return this.combineScoresWithOdds(scores, odds);
+        })
+      ).subscribe(combinedScores => {
+        console.log("Combined scores with odds:", combinedScores);
+        console.log("Event odds: ", combinedScores[0]?.eventOdds?.bookmakers[0]?.key);
+        this.sportScoreMap.set(leagueName, new Set(combinedScores));
+      });
     } else {
-      console.log("could not find league");
+      console.log("Could not find league.");
     }
   }
+  
 
   isPanelVisible(leaguePanel: string): boolean {
     return this.selectedLeague === leaguePanel;
   }
 
 
-  getSportMatchData(): void {
-    if(this.selectedLeague) {
-      console.log("scores from league" ,this.selectedLeague)
-      this.getSportScores(this.selectedLeague!).subscribe(matches =>{
-        const sportSet = this.sportScoreMap.get(this.selectedLeague!) || new Set<ScoresData>();
-        const leagueLogo = this.leagueLogoMap.get(this.selectedLeague!) || '';
-        matches.forEach((game: ScoresData) => {
-          console.log(`Home Team: ${game.home_team}`);
-          console.log(`Away Team: ${game.away_team}`);
-          game.league_logo = leagueLogo;
-          sportSet?.add(game);
-          this.sportScoreMap.set(this.selectedLeague!, sportSet);
-          this.fetchTeamLogo(game.home_team).subscribe(logo => {
-            game.home_team_logo = logo;
-          })
-          this.fetchTeamLogo(game.away_team).subscribe(logo => {
-            game.away_team_logo = logo;
-          })
+  getSportMatchData(): Observable<ScoresData[]> {
+    if (this.selectedLeague) {
+      console.log("Fetching scores from league", this.selectedLeague);
+  
+      return this.getSportScores(this.selectedLeague).pipe(
+        switchMap(matches => {
+          const sportSet = this.sportScoreMap.get(this.selectedLeague!) || new Set<ScoresData>();
+          const leagueLogo = this.leagueLogoMap.get(this.selectedLeague!) || '';
+          
+          const logoRequests = matches.map((game: ScoresData) => {
+            game.league_logo = leagueLogo;
+            sportSet.add(game);
+  
+            return forkJoin([
+              this.fetchTeamLogo(game.home_team).pipe(map(logo => game.home_team_logo = logo)),
+              this.fetchTeamLogo(game.away_team).pipe(map(logo => game.away_team_logo = logo))
+            ]).pipe(map(() => game));
+          });
+  
+          return forkJoin(logoRequests).pipe(
+            map(updatedGames => {
+              this.sportScoreMap.set(this.selectedLeague!, new Set(updatedGames));
+              return updatedGames;
+            })
+          );
         })
-      })
+      );
     } else {
-      console.log("error");
+      console.log("Error: No selected league.");
+      return of([]);
     }
-   
   }
-
+  
 }

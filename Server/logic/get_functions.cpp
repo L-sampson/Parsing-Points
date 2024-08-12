@@ -2,11 +2,11 @@
 // #include "get_bet.hpp"
 
 // GET sports methods
-json getSports(const char *sports_url)
+json getSports(const char *sports_url, const std::vector<std::string>& headersList)
 {
     string response;
     CurlRequest sportRequest;
-    CURLcode res = sportRequest.httpRequest(sports_url, response);
+    CURLcode res = sportRequest.httpRequest(sports_url, response, headersList);
     if (res == CURLE_OK)
     {
         
@@ -43,11 +43,11 @@ json getSports(const char *sports_url)
 
 // GET Odds Endpoint
 //Add sports Title.
-json getEventOdds(const char* event_odds_url)
+json getEventOdds(const char* event_odds_url, const std::vector<std::string>& headersList)
 {
     string response;
     CurlRequest oddsRequest;
-    CURLcode res = oddsRequest.httpRequest(event_odds_url, response);
+    CURLcode res = oddsRequest.httpRequest(event_odds_url, response, headersList);
     if (res == CURLE_OK)
     {
         map<string, string> game_odds;
@@ -106,11 +106,11 @@ json getEventOdds(const char* event_odds_url)
 }
 
 // GET Scores
-json getScores(const char *scores_url)
+json getScores(const char *scores_url, const std::vector<std::string>& headersList)
 {
     string response;
     CurlRequest scoresRequest;
-    CURLcode res = scoresRequest.httpRequest(scores_url, response);
+    CURLcode res = scoresRequest.httpRequest(scores_url, response, headersList);
     if (res == CURLE_OK)
     {
         // Create a Map that links the scores and teams.

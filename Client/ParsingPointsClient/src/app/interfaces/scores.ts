@@ -1,3 +1,5 @@
+import { EventOdds } from "./odds"
+
 export interface ScoresData {
     away_team: string
     away_team_logo: string
@@ -6,8 +8,9 @@ export interface ScoresData {
     home_team: string
     home_team_logo: string
     league_logo: string
-    // id: string
+    id: string
     // last_update: string
+    eventOdds?: EventOdds
     scores?: Score []
     // sport_key: string
     // sport_title: string

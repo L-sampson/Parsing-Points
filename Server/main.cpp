@@ -5,86 +5,91 @@
 #include "curl_request.hpp"
 #include "option_url.hpp"
 
+void sendResponse(crow::response& res, const std::string& response_data, bool is_success) {
+    if (is_success) {
+        CROW_LOG_INFO << "Succeeded the request.";
+        res.set_header("Content-Type", "text/plain");
+        res.set_header("Access-Control-Allow-Origin", "*");
+        res.write(response_data);
+        res.end();
+    } else {
+        CROW_LOG_INFO << "Failed request.";
+        res.code = 404;
+        res.write("Not found");
+        res.end();
+    }
+}
+
 int main()
 {
     crow::SimpleApp app;
 
-    CROW_ROUTE(app, "/")([](){
-        return "Hello world";
-    });
-    
     CROW_ROUTE(app, "/api/sports")
     .methods("GET"_method)([](const crow::request& req, crow::response& res){
         
-        OptionURL bet_option;
-        std::string option = "Sports";
-        std::string url = bet_option.getOptionUrl(option);
-        if(!url.empty()) {
-            CROW_LOG_INFO << "Found URL: " << url;
-        } else {
-            CROW_LOG_ERROR << "Could not find proper url.";
-        }
-        const char* sports_url = url.c_str();
-        json sports_data = getSports(sports_url);
-        std::string sports = sports_data.dump(4);
+        OptionURL sport_option;
+        OptionURL::RequestData requestData = sport_option.getRequestData("Sports", "", "sports", "");
         
-        CROW_LOG_INFO << "Succeded the request.";
-        res.set_header("Content-Type", "text/plain");
-        res.set_header("Access-Control-Allow-Origin", "http://localhost:4200");
-        res.set_header("Access-Control-Allow-Origin", "http://localhost:80");
-        res.set_header("Access-Control-Allow-Origin", "http://localhost");
-        res.set_header("Access-Control-Allow-Origin", "https://parsing-server-e2gdd0g5bycahwgd.eastus-01.azurewebsites.net/api");
-        res.set_header("Access-Control-Allow-Origin", "*");
-        res.write(sports);
-        res.end();
+         if (requestData.option_url.empty()) {
+                CROW_LOG_ERROR << "Could not find proper url";
+                sendResponse(res, "", false);
+                return;
+        }
+        CROW_LOG_INFO << "Found URL: " << requestData.option_url;
+        const char* sports_url = requestData.option_url.c_str();
+        json sports_data = getSports(sports_url, requestData.headers);
+        std::string sports_response = sports_data.dump(4);
 
+        sendResponse(res, sports_response, !sports_response.empty());
     });
 
-  CROW_ROUTE(app, "/api/scores/<string>")
-  .methods(crow::HTTPMethod::GET)
-  ([](const crow::request& req, crow::response& res, const std::string& param){
-    OptionURL sport_option;
-    std::string url = sport_option.getSportsWithParamURL(param);
+    CROW_ROUTE(app, "/api/scores")
+    .methods(crow::HTTPMethod::GET)
+    ([](const crow::request& req, crow::response& res){
+        CROW_LOG_INFO << "Params: " << req.url_params << "\n\n";
+        std::string sport_req = req.url_params.get("sport");
+        OptionURL scores_option;
+        OptionURL::RequestData requestData = scores_option.getRequestData("Sports", sport_req, "scores", "");
+        if (requestData.option_url.empty()) {
+                CROW_LOG_ERROR << "Could not find proper url";
+                sendResponse(res, "", false);
+                return;
+            }
 
-        if(!url.empty()) {
-            CROW_LOG_INFO << "Found URL: " << url;
-        } else {
-            CROW_LOG_ERROR << "Could not find proper url.";
-        }
-    
-    const char* scores_url = url.c_str();
-    json sport_scores = getScores(scores_url);
-    std::string scores = sport_scores.dump(4);
-    res.set_header("Content-Type", "text/plain");
-    res.set_header("Access-Control-Allow-Origin", "http://localhost:4200");
-    res.set_header("Access-Control-Allow-Origin", "http://localhost:80");
-    res.set_header("Access-Control-Allow-Origin", "http://localhost");
-    res.set_header("Access-Control-Allow-Origin", "*");
-    res.write(scores);
-    res.end();
+        CROW_LOG_INFO << "Found URL: " << requestData.option_url;
+        const char* scores_url = requestData.option_url.c_str();
+        json sports_data = getScores(scores_url, requestData.headers);
+        std::string scores_response = sports_data.dump(4);
+
+        sendResponse(res, scores_response, !scores_response.empty());
   });
 
-  CROW_ROUTE(app, "/api/odds/<string>/<string>/<string>/<string>")
+  CROW_ROUTE(app, "/api/odds")
   .methods(crow::HTTPMethod::GET)
-  ([](const crow::request& req,crow::response& res,
-  const std::string& sport,
-  const std::string& region,
-  const std::string& market,
-  const std::string eventId){
-    OptionURL event_odds_option;
-    std::string url = event_odds_option.getEventOddsURL(sport,region, market, eventId);
-    
-    if(!url.empty()) {
-            CROW_LOG_INFO << "Found URL: " << url;
-        } else {
-            CROW_LOG_ERROR << "Could not find proper url.";
-        }
-    const char* event_odds_url = url.c_str();
-    json event_odds = getEventOdds(event_odds_url);
-    std::string odds = event_odds.dump(4);
-    res.set_header("Content-Type", "text/plain");
-    res.write(odds);
-    res.end();
+  ([](const crow::request& req,crow::response& res){
+    std::string sport_req = req.url_params.get("sport");
+    std::string region_req = req.url_params.get("region");
+    std::string market_req = req.url_params.get("market");
+    CROW_LOG_INFO << "Params: " << req.url_params << "\n\n";
+
+    OptionURL odds_option;
+    std::string market_params = odds_option.getEventOddsURL(sport_req, region_req, market_req);
+    OptionURL::RequestData requestData = odds_option.getRequestData("Sports", sport_req, "odds", market_params);
+    CROW_LOG_INFO << "URL: " << requestData.option_url << "\n";
+
+        if (requestData.option_url.empty()) {
+            CROW_LOG_ERROR << "Could not find proper url";
+            sendResponse(res, "", false);
+            return;
+            }
+
+    CROW_LOG_INFO << "Found URL: " << requestData.option_url;
+    const char* odds_url = requestData.option_url.c_str();
+    json sports_data = getEventOdds(odds_url, requestData.headers);
+    std::string odds_response = sports_data.dump(4);
+
+    sendResponse(res, odds_response, !odds_response.empty());
+
   });
 
 

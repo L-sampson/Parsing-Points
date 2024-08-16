@@ -43,7 +43,9 @@
                     </button>
                     <button class="bet" mat-button>Away <span class="home-team bet">{{match?.eventOdds?.bookmakers?.[0]?.markets?.[0]?.outcomes?.[1]?.price}}</span></button>
                 </div>
+                <div class="place-bet">
                 <button class="place-bet" mat-button>Place Bet on {{ match?.eventOdds?.bookmakers?.[0]?.key | uppercase }} </button>
+            </div>
             </div>
         </div>
 

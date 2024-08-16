@@ -71,4 +71,23 @@ mat-card-content {
     button {
         color: #efe7bc
     }
+    button:hover {
+        box-shadow: 0px 0px 5px #efe7bc,
+        0px 0px 25px #efe7bc,
+        0px 0px 25px #efe7bc,
+        0px 0px 25px #efe7bc;
+     }
+}
+
+.place-bet {
+    padding-top: 10px;
+    button {
+        color: #efe7bc
+    }
+    button:hover {
+        box-shadow: 0px 0px 5px #efe7bc,
+        0px 0px 25px #efe7bc,
+        0px 0px 25px #efe7bc,
+        0px 0px 25px #efe7bc;
+     }
 }

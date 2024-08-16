@@ -1,0 +1,36 @@
+h1 {
+    text-align: center;
+    font-family: 'Galada', sans-serif;
+    font-weight: 500;
+    font-size: 36px;
+    color: var(--primary-text);
+}
+
+.card-container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+
+mat-card {
+    background-color: #0000;
+    color: aquamarine;
+    width: calc(100%/2.5);
+}
+
+table {
+    background-color: #1D1E2C; 
+    th {
+        color: aquamarine; 
+    }
+    td {
+        color: #efe7bc;
+    }
+    .name-column {
+        width: 40%;
+    }
+    .spread-win-column {
+        width: 20%;
+    }
+}

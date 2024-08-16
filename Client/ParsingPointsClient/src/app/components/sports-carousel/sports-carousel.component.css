@@ -1,6 +1,6 @@
 .img-wrapper {
     width: 100vw;
-    height: 80vh;
+    height: 60vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -14,7 +14,7 @@ ngb-carousel {
     position: relative;
     margin: auto;
     width: 100vw;
-    height: 80vh;
+    height: 60vh;
     display: flex;
     justify-content: center;
     align-items: center;

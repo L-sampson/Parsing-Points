@@ -1,0 +1,28 @@
+.page-not-found {
+    text-align: center;
+    margin-top: 50px;
+  }
+  
+  .page-not-found h1 {
+    font-family: 'Galada', sans-serif;
+    font-weight: 500;
+    font-size: 48px;
+    color: var(--primary-text);
+  }
+  
+  .page-not-found p {
+    font-size: 18px;
+    margin: 20px 0;
+    color: var(--primary-text);
+  }
+  
+  .page-not-found a {
+    font-size: 18px;
+    color: aquamarine;
+    text-decoration: none;
+  }
+  
+  .page-not-found a:hover {
+    text-decoration: underline;
+  }
+  

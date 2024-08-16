@@ -48,7 +48,8 @@ std::string createBaseUrlParams(const std::string& sport_req ="", const std::str
         {"boxing", "boxing_boxing"},
         {"mma", "mma_mixed_martial_arts"},
         {"mls", "soccer_usa_mls"}, 
-        {"nrl", "rugbyleague_nrl"}
+        {"nrl", "rugbyleague_nrl"},
+        {"upcoming", "upcoming"}
         };
 
         

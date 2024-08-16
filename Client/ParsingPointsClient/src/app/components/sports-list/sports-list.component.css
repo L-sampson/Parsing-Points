@@ -8,8 +8,10 @@
 
 h1 {
     text-align: center;
-    color: #1D1E2C;
-    text-shadow: -1px -1px 0 aquamarine, 1px -1px 0 aquamarine, -1px 1px 0 aquamarine, 1px 1px 0 aquamarine;
+    font-family: 'Galada', sans-serif;
+    font-weight: 500;
+    font-size: 36px;
+    color: var(--primary-text);
 }
 
 .sport-card {
